@@ -1,70 +1,71 @@
-OBJECTS = det.o hira.o histo_sort.o histo_read.o caen.o calibrate.o TDC1190.o  elist.o telescope.o pixels.o doppler.o ZApar.o pid.o solution.o einstein.o newton.o correl.o loss.o forest.o
-ALLOBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
-CFLAGS= -c -g -std=c++11 -O2 -W -I$(shell root-config --incdir) 
-COMPILER= g++
+SOURCES = src/det.cpp src/hira.cpp src/histo_sort.cpp src/histo_read.cpp src/caen.cpp src/calibrate.cpp src/TDC1190.cpp src/elist.cpp src/telescope.cpp src/pixels.cpp src/doppler.cpp src/ZApar.cpp src/pid.cpp src/solution.cpp src/einstein.cpp src/newton.cpp src/correl.cpp src/loss.cpp src/forest.cpp src/sort.cpp
+OBJECTS = $(SOURCES:.c=.o)
+CFLAGS= -g -std=c++11 -O0 -W -I$(shell root-config --incdir) 
+COMPILER= clang++
 LINKOPTION = $(shell root-config --libs)
+HEADERS = $(shell echo include/*.h)
 
+all: sort readtree
 
-sort: sort.o $(OBJECTS)
-	$(COMPILER) -o sort sort.o $(OBJECTS) $(LINKOPTION)
+sort: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o sort $(OBJECTS) $(LINKOPTION)
 
-readtree: readtree.o $(OBJECTS)
-	$(COMPILER) -o readtree readtree.o $(OBJECTS) $(LINKOPTION)
+readtree: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o readtree $(OBJECTS) $(LINKOPTION)
 
-try: try.o $(OBJECTS)
-	$(COMPILER) -o try try.o $(OBJECTS) $(LINKOPTION)
+try: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o try $(OBJECTS) $(LINKOPTION)
  
-testPid: testPid.o $(OBJECTS)
-	$(COMPILER) -o testPid testPid.o $(OBJECTS) $(LINKOPTION)
+testPid: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o testPid $(OBJECTS) $(LINKOPTION)
 
-modCal: modCal.o $(OBJECTS)
-	$(COMPILER) -o modCal modCal.o $(OBJECTS) $(LINKOPTION)
+modCal: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o modCal $(OBJECTS) $(LINKOPTION)
  
-ThFront: ThFront.o $(OBJECTS)
-	$(COMPILER) -o ThFront ThFront.o $(OBJECTS) $(LINKOPTION)
+ThFront: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o ThFront $(OBJECTS) $(LINKOPTION)
  
-ThBack: ThBack.o $(OBJECTS)
-	$(COMPILER) -o ThBack ThBack.o $(OBJECTS) $(LINKOPTION)
+ThBack: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o ThBack $(OBJECTS) $(LINKOPTION)
  
-modCal2: modCal2.o $(OBJECTS)
-	$(COMPILER) -o modCal2 modCal2.o $(OBJECTS) $(LINKOPTION)
+modCal2: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o modCal2 $(OBJECTS) $(LINKOPTION)
 
-modCal3: modCal3.o $(OBJECTS)
-	$(COMPILER) -o modCal3 modCal3.o $(OBJECTS) $(LINKOPTION)
+modCal3: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o modCal3 $(OBJECTS) $(LINKOPTION)
  
-testHist: testHist.o hist.o
-	$(COMPILER) -o testHist testHist.o hist.o $(LINKOPTION)
+testHist: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o testHist $(LINKOPTION)
 
-O12_sim: O12_sim.o $(OBJECTS)
-	$(COMPILER) -o O12_sim O12_sim.o $(OBJECTS) $(LINKOPTION)
+O12_sim: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o O12_sim $(OBJECTS) $(LINKOPTION)
 
-O12_et: O12_et.o $(OBJECTS)
-	$(COMPILER) -o O12_et O12_et.o $(OBJECTS) $(LINKOPTION)
+O12_et: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o O12_et $(OBJECTS) $(LINKOPTION)
 
-O12_sim2: O12_sim2.o $(OBJECTS)
-	$(COMPILER) -o O12_sim2 O12_sim2.o $(OBJECTS) $(LINKOPTION)
+O12_sim2: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o O12_sim2 $(OBJECTS) $(LINKOPTION)
 
-O12_sim2_center: O12_sim2_center.o $(OBJECTS)
-	$(COMPILER) -o O12_sim2_center O12_sim2_center.o $(OBJECTS) $(LINKOPTION)
+O12_sim2_center: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o O12_sim2_center $(OBJECTS) $(LINKOPTION)
 
-O12_sim2_good: O12_sim2_good.o $(OBJECTS)
-	$(COMPILER) -o O12_sim2_good O12_sim2_good.o $(OBJECTS) $(LINKOPTION)
+O12_sim2_good: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o O12_sim2_good $(OBJECTS) $(LINKOPTION)
 
-N12_sim: N12_sim.o $(OBJECTS)
-	$(COMPILER) -o N12_sim N12_sim.o $(OBJECTS) $(LINKOPTION)
+N12_sim: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o N12_sim $(OBJECTS) $(LINKOPTION)
 
-N12_sim2: N12_sim2.o $(OBJECTS)
-	$(COMPILER) -o N12_sim2 N12_sim2.o $(OBJECTS) $(LINKOPTION)
+N12_sim2: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o N12_sim2 $(OBJECTS) $(LINKOPTION)
 
-N12_sim3: N12_sim3.o $(OBJECTS)
-	$(COMPILER) -o N12_sim3 N12_sim3.o $(OBJECTS) $(LINKOPTION)
+N12_sim3: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o N12_sim3 $(OBJECTS) $(LINKOPTION)
 
-N12_et: N12_et.o $(OBJECTS)
-	$(COMPILER) -o N12_et N12_et.o $(OBJECTS) $(LINKOPTION)
+N12_et: $(OBJECTS)
+	$(COMPILER) $(CFLAGS) -o N12_et $(OBJECTS) $(LINKOPTION)
 
-$(ALLOBJECTS): %.o : %.cpp
+%.o : %.cpp $(HEADERS)
 	$(COMPILER) $(CFLAGS) $< -o $@
-
 
 clean:
 	rm -f *.o
