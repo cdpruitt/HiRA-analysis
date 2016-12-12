@@ -1,4 +1,4 @@
-SOURCES = src/det.cpp src/hira.cpp src/histo_sort.cpp src/histo_read.cpp src/caen.cpp src/calibrate.cpp src/TDC1190.cpp src/elist.cpp src/telescope.cpp src/pixels.cpp src/doppler.cpp src/ZApar.cpp src/pid.cpp src/solution.cpp src/einstein.cpp src/newton.cpp src/correl.cpp src/loss.cpp src/forest.cpp src/sort.cpp
+SOURCES = src/det.cpp src/hira.cpp src/histo_sort.cpp src/histo_read.cpp src/caen.cpp src/TDC1190.cpp src/elist.cpp src/telescope.cpp src/pixels.cpp src/doppler.cpp src/ZApar.cpp src/pid.cpp src/solution.cpp src/einstein.cpp src/newton.cpp src/correl.cpp src/loss.cpp src/forest.cpp src/sort.cpp
 OBJECTS = $(SOURCES:.c=.o)
 CFLAGS= -g -std=c++11 -O0 -W -I$(shell root-config --incdir) 
 COMPILER= clang++

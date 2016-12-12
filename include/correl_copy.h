@@ -138,7 +138,7 @@ class correl
   int mask15N[5];
   int ifront;
   int istrip;
-  int itele;
+  int telescopeNumber;
   // int Norder;
   float Vlab;
 

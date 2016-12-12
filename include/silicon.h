@@ -17,15 +17,15 @@ using namespace std;
 
 struct dataE
 {
-  int ienergy;
+  int uncalEnergy;
   int id;
-  int itime;
+  int uncalTime;
   float energy;
 };
 
 struct dataT
 {
-  int itime;
+  int uncalTime;
   int id;
 };
 
@@ -33,7 +33,7 @@ struct map
 {
   bool front;
   bool A;
-  int itele;
+  int telescopeNumber;
 };
 
 class silicon

@@ -5,38 +5,38 @@
 #include "TRandom.h"
 #include "histo_sort.h"
 #include "histo_read.h"
-#include "calibrate.h"
 #include "telescope.h"
 #include "caen.h"
 #include "pixels.h"
 #include "TDC1190.h"
+#include "geometry.h"
 
 using namespace std;
 
 struct dataE
 {
-    int ienergy;
+    int uncalEnergy;
     int id;
-    int itime;
+    int uncalTime;
     float energy;
 };
 
 struct dataT
 {
-    int itime;
+    int uncalTime;
     int id;
 };
 
 struct mmap
 {
     bool front;
-    int itele;
+    int telescopeNumber;
 };
 
 struct cmap
 {
-    int itele;
-    int iCsi;
+    int telescopeNumber;
+    int CsINumber;
 };
 
 class hira
@@ -48,11 +48,11 @@ class hira
 
         int type;
         void init();
-        bool unpack(unsigned short*& point,int runno);
-        bool unpackSi_sis(unsigned short*& point);
-        bool unpackSi_HINP4(unsigned short*& point);
-        bool unpackSi_adc(unsigned short*& point);
-        bool unpackCsi(unsigned short*& point,int runno);
+        bool unpack(ifstream& evtfile,int runno);
+        bool unpackSi_sis(ifstream& evtfile);
+        bool unpackSi_HINP4(ifstream& evtfile);
+        bool unpackSi_adc(ifstream& evtfile);
+        bool unpackCsi(ifstream& evtfile, int runno);
         void analyze();
         telescope **Telescope;
         void reset();
@@ -77,17 +77,17 @@ class hira
         dataE DataE[TOTAL_CSIS];
         dataT DataT[TOTAL_CSIS];
 
-        calibrate * calBack;
-        calibrate * calFront;
-        calibrate * calLBack;
-        calibrate * calLFront;
-        calibrate * calCsi;
-        calibrate * calBDual;
-        calibrate * calFrontT;
-        calibrate * calBackT;
-        calibrate * calFrontTLG;
-        calibrate * calBackTLG;
-        calibrate * calrecal;
+        //calibrate * calBack;
+        //calibrate * calFront;
+        //calibrate * calLBack;
+        //calibrate * calLFront;
+        //calibrate * calCsi;
+        //calibrate * calBDual;
+        //calibrate * calFrontT;
+        //calibrate * calBackT;
+        //calibrate * calFrontTLG;
+        //calibrate * calBackTLG;
+        //calibrate * calrecal;
 
         int NE;
         int NT;

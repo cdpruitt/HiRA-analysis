@@ -147,22 +147,22 @@ bool ceasar::unpack(unsigned short * point)
 	      overflow =1;
 	    }
           int id = Caen.channel[i] + 32*iqdc;
-          int ienergy = Caen.data[i];
+          int uncalEnergy = Caen.data[i];
 	  chan = Caen.channel[i];
 
 	  if(overflow)
 	    {
 	      cout << "overflow " << id << endl;
-	      ienergy = 5000;
+	      uncalEnergy = 5000;
 	    }
 	  if(underflow)
 	    {
 	      cout << "underflow " << id << endl;
-	      ienergy = 5100;
+	      uncalEnergy = 5100;
 	    }
 
 	  DataEC[NE].id = id;
-          DataEC[NE].ienergy = ienergy;
+          DataEC[NE].uncalEnergy = uncalEnergy;
 	  if(chan < 16)
 	    {
 	      Bank = iqdc*2;
@@ -173,7 +173,7 @@ bool ceasar::unpack(unsigned short * point)
 	      chan = chan -16;
 	    }
 	  
-	  // cout << ienergy << " "<< Bank << " " << chan << " ";
+	  // cout << uncalEnergy << " "<< Bank << " " << chan << " ";
 	  Ring = MapC[Bank][chan].iRing;
 	  Loc = MapC[Bank][chan].iLoc;
 
@@ -184,14 +184,14 @@ bool ceasar::unpack(unsigned short * point)
         
 	  // cout << Ring << " " << Loc << endl;
 	  if(Ring == -1 || Loc == -1) continue;
-	  Histo->RingSum[Ring]->Fill(Loc,ienergy);
+	  Histo->RingSum[Ring]->Fill(Loc,uncalEnergy);
 
-	  float energy = calCeasar->getEnergy(0,id,ienergy+ran->Rndm());
+	  float energy = calCeasar->getEnergy(0,id,uncalEnergy+ran->Rndm());
           DataEC[NE].energy = energy;
 
 	  //Histo->RingSum_Cal[Ring]->Fill(Loc,energy);
-	  Histo->ECeasar[id]->Fill(ienergy);
-	  //	  Histo->ECSum->Fill(id,ienergy);
+	  Histo->ECeasar[id]->Fill(uncalEnergy);
+	  //	  Histo->ECSum->Fill(id,uncalEnergy);
 	  Histo->ECCeasar[id]->Fill(energy);
 	  Histo->TECeasar->Fill(energy);
 	  DataEC[NE].Total += energy;
@@ -233,11 +233,11 @@ bool ceasar::unpack(unsigned short * point)
       for (int i =0;i< tdc[itdc]->Ndata;i++)
 	{
           int id = tdc[itdc]->dataOut[i].channel + 112*itdc;
-          int itime = tdc[itdc]->dataOut[i].time;
+          int uncalTime = tdc[itdc]->dataOut[i].time;
 	  if (tdc[itdc]->dataOut[i].channel == 113 && itdc ==0)
 	    {
 
-              Txfp[Nxfp] = itime/10.;
+              Txfp[Nxfp] = uncalTime/10.;
               //cout << Txfp << endl;
               Histo->Txfp->Fill(Txfp[Nxfp]);
               Nxfp++;
@@ -245,7 +245,7 @@ bool ceasar::unpack(unsigned short * point)
 	    }
 	  if (tdc[itdc]->dataOut[i].channel == 114 && itdc ==0)
 	    {
-	      TRF = itime/10.;
+	      TRF = uncalTime/10.;
               Histo->TRF->Fill(TRF);
 	      continue;
 	    }
@@ -253,14 +253,14 @@ bool ceasar::unpack(unsigned short * point)
 	  if (tdc[itdc]->dataOut[i].order > 0) continue;
 
           DataTC[NT].id  = id;
-          DataTC[NT].itime = itime;
+          DataTC[NT].uncalTime = uncalTime;
 
-	  float time = calCeasarT->getEnergy(0,id,itime/10.+ran->Rndm());
+	  float time = calCeasarT->getEnergy(0,id,uncalTime/10.+ran->Rndm());
 	  DataTC[NT].time = time;
 	  Histo->TCeasarCal->Fill(time);
-	  Histo->TCeasar[id]->Fill(itime/10.);
-	  Histo->TCSum->Fill(id,itime/10.);
-          Histo->TCtotal->Fill(itime/10.);
+	  Histo->TCeasar[id]->Fill(uncalTime/10.);
+	  Histo->TCSum->Fill(id,uncalTime/10.);
+          Histo->TCtotal->Fill(uncalTime/10.);
           NT++; 
 	}
 
@@ -277,7 +277,7 @@ bool ceasar::unpack(unsigned short * point)
   // match up energies to times
   for (int ie=0;ie<NE;ie++)
     {
-      DataEC[ie].itime = -1;
+      DataEC[ie].uncalTime = -1;
       DataEC[ie].time = -1;
       for (int it=0;it<NT;it++)
 	{
@@ -285,12 +285,12 @@ bool ceasar::unpack(unsigned short * point)
 	    {
 
 	      //cout << DataEC[ie].id << endl;
-	      DataEC[ie].itime = DataTC[it].itime;
+	      DataEC[ie].uncalTime = DataTC[it].uncalTime;
 	      DataEC[ie].time = DataTC[it].time;
-              if (DataEC[ie].itime > 3000 && DataEC[ie].itime < 6000 
+              if (DataEC[ie].uncalTime > 3000 && DataEC[ie].uncalTime < 6000 
 		  && DataEC[ie].iRing != -1)
 		{
-  	         Histo->ECMSum->Fill(DataEC[ie].id,DataEC[ie].ienergy);
+  	         Histo->ECMSum->Fill(DataEC[ie].id,DataEC[ie].uncalEnergy);
 
     	         float dop_energy = Doppler->correct(DataEC[ie].energy,DataEC[ie].theta);
 	         Histo->TEC_Dop->Fill(dop_energy);

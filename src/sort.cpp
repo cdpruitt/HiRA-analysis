@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
     long scalerBufferCounter = 0;
     long Npauses = 0;
     long Nresumes = 0;
-    long runno = 0;
+    short runno = 0;
 
     // initialize the classes for processing sorted events
     histo_sort * Histo_sort = new histo_sort();
@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
             switch(evtType)
             {
                 case 1: 
-                    runno = dataBuffer;
+                    runno = dataBuffer[0];
                     cout << "run number = " << runno << endl; 
                     break;
 

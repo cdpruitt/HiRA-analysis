@@ -1,8 +1,8 @@
 #include "../include/silicon.h"
 
 //***********************************************************************//
-//  Russian Detector -- itele == 0
-//  S2 Detector      -- itele == 1
+//  Russian Detector -- telescopeNumber == 0
+//  S2 Detector      -- telescopeNumber == 1
 // 
 
 silicon::silicon(TRandom * ran0, histo * Histo0)
@@ -58,14 +58,14 @@ silicon::silicon(TRandom * ran0, histo * Histo0)
       abort();
     }
   getline(ifile,name);
-  int itele,ipie,icsi;
+  int telescopeNumber,ipie,icsi;
   for(;;)
     {
-      ifile >> itele >> ipie >> icsi;
+      ifile >> telescopeNumber >> ipie >> icsi;
       if(ifile.eof())break;
       if(ifile.bad())break;
 
-      Telescope[itele]->load(ipie,icsi);
+      Telescope[telescopeNumber]->load(ipie,icsi);
 
     }
 
@@ -139,35 +139,35 @@ bool silicon::unpackCsi(unsigned short *&point,int runno)
 	  if (ADC.underflow[i]) continue;
 	  if (ADC.overflow[i]) continue;
           int id = ADC.channel[i] + 32*iadc;
-          int ienergy = ADC.data[i];
+          int uncalEnergy = ADC.data[i];
 
 	  // cout << "id " << id << endl;
 
 	  if(id < 32)
 	    {
 
-	      // float energy = calCsi->getEnergy(0,id,ienergy+ran->Rndm());
+	      // float energy = calCsi->getEnergy(0,id,uncalEnergy+ran->Rndm());
 	      DataE[NE].id = id;
-	      DataE[NE].ienergy = ienergy;
+	      DataE[NE].uncalEnergy = uncalEnergy;
 	      //DataE[NE].energy = energy;
-	      if(id<0)cout << id << " =id ERROR ienergy=  " << ienergy << endl;
-	      Histo->ECsI[id]->Fill(ienergy);
+	      if(id<0)cout << id << " =id ERROR uncalEnergy=  " << uncalEnergy << endl;
+	      Histo->ECsI[id]->Fill(uncalEnergy);
 	      
 
 
 	      float energy = 0; //FIX THIS!!!!!! KB
 	      
-	      int itele = (int)floor(DataE[NE].id/16);
-	      int icsi = DataE[NE].id - 16*itele; 
+	      int telescopeNumber = (int)floor(DataE[NE].id/16);
+	      int icsi = DataE[NE].id - 16*telescopeNumber; 
 
-              if (ienergy > 150)
+              if (uncalEnergy > 150)
  		{
 
 		  CsIM++;
-		  Telescope[itele]->Csi.Add(icsi,0,energy,DataE[NE].ienergy,0.);
+		  Telescope[telescopeNumber]->Csi.Add(icsi,0,energy,DataE[NE].uncalEnergy,0.);
  		}
-	      //cout << Telescope[itele]->Csi.Order[0].strip;
-	      //cout << " " << Telescope[itele]->Csi.Order[0].energy << endl;
+	      //cout << Telescope[telescopeNumber]->Csi.Order[0].strip;
+	      //cout << " " << Telescope[telescopeNumber]->Csi.Order[0].energy << endl;
 	      
 	     NE++;
 	    }
@@ -206,12 +206,12 @@ bool silicon::unpackCsi(unsigned short *&point,int runno)
 	  
           int id = tdc->dataOut[i].channel;
 	  
-          int itime = tdc->dataOut[i].time;
+          int uncalTime = tdc->dataOut[i].time;
 	  if (id < 32)
 	    {
 	      //DataT[NT].id = id;
-	      //DataT[NT].itime = itime;
-	      Histo->TCsI[id]->Fill(itime);
+	      //DataT[NT].uncalTime = uncalTime;
+	      Histo->TCsI[id]->Fill(uncalTime);
 	      NT++;
 	    }
 	}
@@ -232,7 +232,7 @@ bool silicon::unpackCsi(unsigned short *&point,int runno)
   // match up energies to times
   for (int ie=0;ie<NE;ie++)
     {
-      DataE[ie].itime = -1;
+      DataE[ie].uncalTime = -1;
       //cout << "DataE[ie].id = " <<DataE[ie].id << endl;
       //cout << "DataT[ie].id = " << DataT[ie].id << endl;
       //cout <<"NE = " << NE << " NT = " << NT <<endl;
@@ -241,20 +241,20 @@ bool silicon::unpackCsi(unsigned short *&point,int runno)
 
           if (DataE[ie].id == DataT[it].id ) 	      //we have matched
 	    {
-	      DataE[ie].itime = DataT[it].itime;
-	      //     int itele = DataE[ie].id/4;
+	      DataE[ie].uncalTime = DataT[it].uncalTime;
+	      //     int telescopeNumber = DataE[ie].id/4;
 	      //int icsi = DataE[ie].id%4;
-	      int itele = (int)floor(DataE[NE].id/16);
-	      int icsi = DataE[NE].id - 16*itele; 
+	      int telescopeNumber = (int)floor(DataE[NE].id/16);
+	      int icsi = DataE[NE].id - 16*telescopeNumber; 
 	      float energy=0.;
-	      if(DataE[ie].ienergy >150)// && DataE[ie].itime > 500 && DataE[ie].itime < 1500)
+	      if(DataE[ie].uncalEnergy >150)// && DataE[ie].uncalTime > 500 && DataE[ie].uncalTime < 1500)
 		{
-		  Telescope[itele]->Csi.Add(icsi,0,energy,DataE[ie].ienergy,(float)DataE[ie].itime);
+		  Telescope[telescopeNumber]->Csi.Add(icsi,0,energy,DataE[ie].uncalEnergy,(float)DataE[ie].uncalTime);
 		  
-// 		  cout <<"itele = " <<itele << " icsi = " << icsi <<" Time =" << DataE[ie].itime << " Energy = " <<DataE[ie].ienergy << endl;
+// 		  cout <<"telescopeNumber = " <<telescopeNumber << " icsi = " << icsi <<" Time =" << DataE[ie].uncalTime << " Energy = " <<DataE[ie].uncalEnergy << endl;
 
-// 		  cout << "icsi = " <<  Telescope[itele]->Csi.Order[0].strip << " energy = " << Telescope[itele]->Csi.Order[0].energyR;
-// 		  cout << " time = " << Telescope[itele]->Csi.Order[0].time  << endl;
+// 		  cout << "icsi = " <<  Telescope[telescopeNumber]->Csi.Order[0].strip << " energy = " << Telescope[telescopeNumber]->Csi.Order[0].energyR;
+// 		  cout << " time = " << Telescope[telescopeNumber]->Csi.Order[0].time  << endl;
 // 		  cout << endl;
 
 		}
@@ -342,9 +342,9 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
       unsigned short id = *point++;
       unsigned short chipNum = (id&0x1FE0)>>5;
       unsigned short chanNum = id & 0x1F;
-      unsigned short ienergy = *point++;
+      unsigned short uncalEnergy = *point++;
       unsigned short ilowenergy = *point++;
-      unsigned short itime =  *point++;
+      unsigned short uncalTime =  *point++;
       unsigned short underOver = 0;   //No under or overflow in HINP4
       
       
@@ -387,13 +387,13 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
       int iSring = -1;
       bool bring = 0;
       bool bpie = 0; 
-      int itele = -1;
+      int telescopeNumber = -1;
 
 
       //mapping of chips to pies and rings on Russiand and S2
       if(chipNum <=3)
 	{
-	  itele = 0;
+	  telescopeNumber = 0;
 	  if(chipNum !=3)
 	    {
 	      bpie = 1;
@@ -416,18 +416,18 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
 	      
 	      if(iRpie ==21)
 		{
-		  pie1E = ienergy;
-		  time1E = itime;
+		  pie1E = uncalEnergy;
+		  time1E = uncalTime;
 		}
 	      if(iRpie ==22)
 		{
-		  pie2E = ienergy;
-		  time2E = itime;
+		  pie2E = uncalEnergy;
+		  time2E = uncalTime;
 		}
 	      
 	      //   cout << "irpie = " << iRpie << " " << chanNum<< " " << chipNum << endl;
 
-	      Histo->RusPiesR[iRpie]->Fill(ienergy);
+	      Histo->RusPiesR[iRpie]->Fill(uncalEnergy);
 	      Histo->RusPiesRLG[iRpie]->Fill(ilowenergy);
 		
 	      
@@ -437,9 +437,9 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
 	    {
 	      bring = 1;
 	      if(chanNum ==15)
-		ring1E = ienergy;
+		ring1E = uncalEnergy;
 	      if(chanNum ==16)
-		ring2E = ienergy;
+		ring2E = uncalEnergy;
 
 	      //	      iRring = chanNum;	
 	      if(chanNum >=16)
@@ -452,7 +452,7 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
 		    }
 
 	      
-	      Histo->RusRingsR[iRring]->Fill(ienergy);
+	      Histo->RusRingsR[iRring]->Fill(uncalEnergy);
 	      Histo->RusRingsRLG[iRring]->Fill(ilowenergy);
 	    }
 	  
@@ -461,7 +461,7 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
 	}
       else
 	{
-	  itele =1;
+	  telescopeNumber =1;
 	  if(chipNum ==4)
 	    {
 	      bpie = 1;
@@ -471,7 +471,7 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
 		  return false;
 		}
 	      iSpie = chanNum-16;;
-	      Histo->S2PiesR[iSpie]->Fill(ienergy);
+	      Histo->S2PiesR[iSpie]->Fill(uncalEnergy);
 	      Histo->S2PiesRLG[iSpie]->Fill(ilowenergy);
 	    } 
 	  else
@@ -492,7 +492,7 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
 	      else if(chipNum ==6)
 		iSring = chanNum+16;
 
-	      Histo->S2RingsR[iSring]->Fill(ienergy);
+	      Histo->S2RingsR[iSring]->Fill(uncalEnergy);
 	      Histo->S2RingsRLG[iSring]->Fill(ilowenergy);
 	    }
 	}
@@ -504,26 +504,26 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
       if(bpie)
 	{
 	  float energy  = 0.;
-	  float time = itime;
-	  if(itele ==0)
+	  float time = uncalTime;
+	  if(telescopeNumber ==0)
 	    {
-	      energy = calRPie->getEnergy(0,iRpie,ienergy+ran->Rndm());
+	      energy = calRPie->getEnergy(0,iRpie,uncalEnergy+ran->Rndm());
 	      //Histo->RusPiesC[iRpie]->Fill(energy);
 	      //Histo->ERPCSum->Fill(iRpie,energy);
 	      if(energy > 1.)
 		{
 		  if(iRpie !=21 && iRpie !=22)
-		    Telescope[itele]->Pie.Add(iRpie,underOver,energy,ienergy,time);
+		    Telescope[telescopeNumber]->Pie.Add(iRpie,underOver,energy,uncalEnergy,time);
 		}
 	    }
 	  else
 	    {
-	      energy = calSPie->getEnergy(0,iSpie,ienergy+ran->Rndm());
+	      energy = calSPie->getEnergy(0,iSpie,uncalEnergy+ran->Rndm());
 	      Histo->S2PiesC[iSpie]->Fill(energy);
 	      Histo->ESPCSum->Fill(iSpie,energy);
 	      if(energy > 1.)
 		{
-		  Telescope[itele]->Pie.Add(iSpie,underOver,energy,ienergy,time);
+		  Telescope[telescopeNumber]->Pie.Add(iSpie,underOver,energy,uncalEnergy,time);
 		}
 
 	    }
@@ -532,14 +532,14 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
       //cout << iRpie << endl;
       if(iRpie==16)
 	{
-	  if(blockme==1) Histo->RusPiesBlock1->Fill(ienergy);
-	  if(blockme==2) Histo->RusPiesBlock2->Fill(ienergy);
-	  if(blockme==3) Histo->RusPiesBlock3->Fill(ienergy);
-	  if(blockme==4) Histo->RusPiesBlock4->Fill(ienergy);
-	  if(blockme==5) Histo->RusPiesBlock5->Fill(ienergy);
-	  if(blockme==6) Histo->RusPiesBlock6->Fill(ienergy);
-	  if(blockme==7) Histo->RusPiesBlock7->Fill(ienergy);
-	  if(blockme==8) Histo->RusPiesBlock8->Fill(ienergy);
+	  if(blockme==1) Histo->RusPiesBlock1->Fill(uncalEnergy);
+	  if(blockme==2) Histo->RusPiesBlock2->Fill(uncalEnergy);
+	  if(blockme==3) Histo->RusPiesBlock3->Fill(uncalEnergy);
+	  if(blockme==4) Histo->RusPiesBlock4->Fill(uncalEnergy);
+	  if(blockme==5) Histo->RusPiesBlock5->Fill(uncalEnergy);
+	  if(blockme==6) Histo->RusPiesBlock6->Fill(uncalEnergy);
+	  if(blockme==7) Histo->RusPiesBlock7->Fill(uncalEnergy);
+	  if(blockme==8) Histo->RusPiesBlock8->Fill(uncalEnergy);
 	}
 
 
@@ -547,25 +547,25 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
       else
 	{
 	  float energy = 0.;
-	  float time = itime;
-	  if(itele==0)
+	  float time = uncalTime;
+	  if(telescopeNumber==0)
 	    {
-	      energy = calRRing->getEnergy(0,iRring,ienergy+ran->Rndm());
+	      energy = calRRing->getEnergy(0,iRring,uncalEnergy+ran->Rndm());
 	      Histo->RusRingsC[iRring]->Fill(energy);
 	      Histo->ERRCSum->Fill(iRring,energy);
 	      if(energy > 1.)
 		{
-		  Telescope[itele]->Ring.Add(iRring,underOver,energy,ienergy,time);
+		  Telescope[telescopeNumber]->Ring.Add(iRring,underOver,energy,uncalEnergy,time);
 		}
 	    }
 	  else
 	    {
-	      energy = calSRing->getEnergy(0,iSring,ienergy+ran->Rndm());
+	      energy = calSRing->getEnergy(0,iSring,uncalEnergy+ran->Rndm());
 	      Histo->S2RingsC[iSring]->Fill(energy);
 	      Histo->ESRCSum->Fill(iSring,energy);
 	      if(energy > 1.)
 		{
-		  Telescope[itele]->Ring.Add(iSring,underOver,energy,ienergy,time);
+		  Telescope[telescopeNumber]->Ring.Add(iSring,underOver,energy,uncalEnergy,time);
 		}
 
 	    }
@@ -576,14 +576,14 @@ bool silicon::unpackSi_HINP4(unsigned short *&point)
 	{
 
 	  // cout << "ladaga" << endl;
-	  if(blockme==1) Histo->RusPiesBlock1->Fill(ienergy);
-	  if(blockme==2) Histo->RusPiesBlock2->Fill(ienergy);
-	  if(blockme==3) Histo->RusPiesBlock3->Fill(ienergy);
-	  if(blockme==4) Histo->RusPiesBlock4->Fill(ienergy);
-	  if(blockme==5) Histo->RusPiesBlock5->Fill(ienergy);
-	  if(blockme==6) Histo->RusPiesBlock6->Fill(ienergy);
-	  if(blockme==7) Histo->RusPiesBlock7->Fill(ienergy);
-	  if(blockme==8) Histo->RusPiesBlock8->Fill(ienergy);
+	  if(blockme==1) Histo->RusPiesBlock1->Fill(uncalEnergy);
+	  if(blockme==2) Histo->RusPiesBlock2->Fill(uncalEnergy);
+	  if(blockme==3) Histo->RusPiesBlock3->Fill(uncalEnergy);
+	  if(blockme==4) Histo->RusPiesBlock4->Fill(uncalEnergy);
+	  if(blockme==5) Histo->RusPiesBlock5->Fill(uncalEnergy);
+	  if(blockme==6) Histo->RusPiesBlock6->Fill(uncalEnergy);
+	  if(blockme==7) Histo->RusPiesBlock7->Fill(uncalEnergy);
+	  if(blockme==8) Histo->RusPiesBlock8->Fill(uncalEnergy);
 	}
 
 

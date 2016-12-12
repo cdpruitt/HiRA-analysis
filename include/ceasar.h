@@ -12,9 +12,9 @@ using namespace std;
 
 struct dataEC
 {
-  int ienergy;
+  int uncalEnergy;
   int id;
-  int itime;
+  int uncalTime;
   int iRing;
   int iLoc;
   float theta;
@@ -27,7 +27,7 @@ struct dataEC
 
 struct dataTC
 {
-  int itime;
+  int uncalTime;
   int id;
   float time;
 };

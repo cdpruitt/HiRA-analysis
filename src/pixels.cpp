@@ -13,7 +13,7 @@ pixels::pixels()
   double theta1 = -2.82725; 
   double theta2 = 1.57277;
   int e,f;
-  for (int itele=0;itele<14;itele++)
+  for (int telescopeNumber=0;telescopeNumber<14;telescopeNumber++)
     for (int ifront=0;ifront<32;ifront++)
      for  (int iback=0;iback<32;iback++)
       {
@@ -46,9 +46,9 @@ pixels::pixels()
 
 	 //cout << xxx << " " << yy << " " << zz << endl;
 
-         TeleP[itele].Location[ifront][iback].x = -yy;
-         TeleP[itele].Location[ifront][iback].y = -xxx;
-         TeleP[itele].Location[ifront][iback].z = zz-.79-.05;
+         TeleP[telescopeNumber].Location[ifront][iback].x = -yy;
+         TeleP[telescopeNumber].Location[ifront][iback].y = -xxx;
+         TeleP[telescopeNumber].Location[ifront][iback].z = zz-.79-.05;
 
       }
   file.close();
@@ -61,7 +61,7 @@ pixels::pixels()
 
   int B,F,G,H;
   double x,y,z;
-  for (int itele=0;itele<14;itele++)
+  for (int telescopeNumber=0;telescopeNumber<14;telescopeNumber++)
     {
       file2 >> G >> H;
       for (int ifront=0;ifront<32;ifront++)
@@ -69,9 +69,9 @@ pixels::pixels()
 	  {
 	    file2 >> F >> B >> x >> y >> z;
 
-	    TeleP[tele[itele]].Location[ifront][31-iback].x = -x;
-	    TeleP[tele[itele]].Location[ifront][31-iback].y = -y;
-	    TeleP[tele[itele]].Location[ifront][31-iback].z = z;
+	    TeleP[tele[telescopeNumber]].Location[ifront][31-iback].x = -x;
+	    TeleP[tele[telescopeNumber]].Location[ifront][31-iback].y = -y;
+	    TeleP[tele[telescopeNumber]].Location[ifront][31-iback].z = z;
 	    
 	  }
     }
@@ -85,40 +85,40 @@ pixels::pixels()
   location center1 = getCenter(6);
   location center2 = getCenter(7);
 
-  for (int itele=0;itele<14;itele++)
+  for (int telescopeNumber=0;telescopeNumber<14;telescopeNumber++)
     for (int ifront=0;ifront<32;ifront++)
      for  (int iback=0;iback<32;iback++)
       {
 
-         float r = pow(TeleP[itele].Location[ifront][iback].x,2)
-           + pow(TeleP[itele].Location[ifront][iback].y,2)
-	   + pow(TeleP[itele].Location[ifront][iback].z,2);
+         float r = pow(TeleP[telescopeNumber].Location[ifront][iback].x,2)
+           + pow(TeleP[telescopeNumber].Location[ifront][iback].y,2)
+	   + pow(TeleP[telescopeNumber].Location[ifront][iback].z,2);
 	 r = sqrt(r);
-         TeleP[itele].Location[ifront][iback].theta =
-	   acos(TeleP[itele].Location[ifront][iback].z/r);
-         TeleP[itele].Location[ifront][iback].phi =
-	   atan2(TeleP[itele].Location[ifront][iback].y,
-		 TeleP[itele].Location[ifront][iback].x);
+         TeleP[telescopeNumber].Location[ifront][iback].theta =
+	   acos(TeleP[telescopeNumber].Location[ifront][iback].z/r);
+         TeleP[telescopeNumber].Location[ifront][iback].phi =
+	   atan2(TeleP[telescopeNumber].Location[ifront][iback].y,
+		 TeleP[telescopeNumber].Location[ifront][iback].x);
       }
 
 }
 //*********************************
-location pixels::getCenter(int itele)
+location pixels::getCenter(int telescopeNumber)
 {
-  float x = (TeleP[itele].Location[15][15].x 
-          + TeleP[itele].Location[15][16].x
-          + TeleP[itele].Location[16][15].x
-          + TeleP[itele].Location[16][16].x)/4.;
+  float x = (TeleP[telescopeNumber].Location[15][15].x 
+          + TeleP[telescopeNumber].Location[15][16].x
+          + TeleP[telescopeNumber].Location[16][15].x
+          + TeleP[telescopeNumber].Location[16][16].x)/4.;
 
-  float y = (TeleP[itele].Location[15][15].y
-          + TeleP[itele].Location[15][16].y
-          + TeleP[itele].Location[16][15].y
-          + TeleP[itele].Location[16][16].y)/4.;
+  float y = (TeleP[telescopeNumber].Location[15][15].y
+          + TeleP[telescopeNumber].Location[15][16].y
+          + TeleP[telescopeNumber].Location[16][15].y
+          + TeleP[telescopeNumber].Location[16][16].y)/4.;
 
-  float z = (TeleP[itele].Location[15][15].z 
-          + TeleP[itele].Location[15][16].z
-          + TeleP[itele].Location[16][15].z
-          + TeleP[itele].Location[16][16].z)/4.;
+  float z = (TeleP[telescopeNumber].Location[15][15].z 
+          + TeleP[telescopeNumber].Location[15][16].z
+          + TeleP[telescopeNumber].Location[16][15].z
+          + TeleP[telescopeNumber].Location[16][16].z)/4.;
  
   location out;
  out.x = x;
@@ -128,83 +128,83 @@ location pixels::getCenter(int itele)
  return out;
 }
 //***************************************
-float pixels::getAngle(int itele, int ifront, int iback)
+float pixels::getAngle(int telescopeNumber, int ifront, int iback)
 {
-  phi = TeleP[itele].Location[ifront][iback].phi;
-  return TeleP[itele].Location[ifront][iback].theta;
+  phi = TeleP[telescopeNumber].Location[ifront][iback].phi;
+  return TeleP[telescopeNumber].Location[ifront][iback].theta;
   
 }
 //*********************************
-float pixels::getCsiCenter(int itele, int iCsi)
+float pixels::getCsiCenter(int telescopeNumber, int CsINumber)
 {
   float x,y,z;
-  if (iCsi == 0)
+  if (CsINumber == 0)
     {
-     x = (TeleP[itele].Location[7][7].x 
-          + TeleP[itele].Location[7][8].x
-          + TeleP[itele].Location[8][7].x
-          + TeleP[itele].Location[8][8].x)/4.;
+     x = (TeleP[telescopeNumber].Location[7][7].x 
+          + TeleP[telescopeNumber].Location[7][8].x
+          + TeleP[telescopeNumber].Location[8][7].x
+          + TeleP[telescopeNumber].Location[8][8].x)/4.;
 
-     y = (TeleP[itele].Location[7][7].y
-          + TeleP[itele].Location[7][8].y
-          + TeleP[itele].Location[8][7].y
-          + TeleP[itele].Location[8][8].y)/4.;
+     y = (TeleP[telescopeNumber].Location[7][7].y
+          + TeleP[telescopeNumber].Location[7][8].y
+          + TeleP[telescopeNumber].Location[8][7].y
+          + TeleP[telescopeNumber].Location[8][8].y)/4.;
 
-     z = (TeleP[itele].Location[7][7].z 
-          + TeleP[itele].Location[7][8].z
-          + TeleP[itele].Location[8][7].z
-          + TeleP[itele].Location[8][8].z)/4.;
+     z = (TeleP[telescopeNumber].Location[7][7].z 
+          + TeleP[telescopeNumber].Location[7][8].z
+          + TeleP[telescopeNumber].Location[8][7].z
+          + TeleP[telescopeNumber].Location[8][8].z)/4.;
     }
-  if (iCsi == 1)
+  if (CsINumber == 1)
     {
-     x = (TeleP[itele].Location[7][23].x 
-          + TeleP[itele].Location[7][24].x
-          + TeleP[itele].Location[8][23].x
-          + TeleP[itele].Location[8][24].x)/4.;
+     x = (TeleP[telescopeNumber].Location[7][23].x 
+          + TeleP[telescopeNumber].Location[7][24].x
+          + TeleP[telescopeNumber].Location[8][23].x
+          + TeleP[telescopeNumber].Location[8][24].x)/4.;
 
-     y = (TeleP[itele].Location[7][23].y
-          + TeleP[itele].Location[7][24].y
-          + TeleP[itele].Location[8][23].y
-          + TeleP[itele].Location[8][24].y)/4.;
+     y = (TeleP[telescopeNumber].Location[7][23].y
+          + TeleP[telescopeNumber].Location[7][24].y
+          + TeleP[telescopeNumber].Location[8][23].y
+          + TeleP[telescopeNumber].Location[8][24].y)/4.;
 
-     z = (TeleP[itele].Location[7][23].z 
-          + TeleP[itele].Location[7][24].z
-          + TeleP[itele].Location[8][23].z
-          + TeleP[itele].Location[8][24].z)/4.;
+     z = (TeleP[telescopeNumber].Location[7][23].z 
+          + TeleP[telescopeNumber].Location[7][24].z
+          + TeleP[telescopeNumber].Location[8][23].z
+          + TeleP[telescopeNumber].Location[8][24].z)/4.;
     }
-  if (iCsi == 2)
+  if (CsINumber == 2)
     {
-     x = (TeleP[itele].Location[23][23].x 
-          + TeleP[itele].Location[23][24].x
-          + TeleP[itele].Location[24][23].x
-          + TeleP[itele].Location[24][24].x)/4.;
+     x = (TeleP[telescopeNumber].Location[23][23].x 
+          + TeleP[telescopeNumber].Location[23][24].x
+          + TeleP[telescopeNumber].Location[24][23].x
+          + TeleP[telescopeNumber].Location[24][24].x)/4.;
 
-     y = (TeleP[itele].Location[23][23].y
-          + TeleP[itele].Location[23][24].y
-          + TeleP[itele].Location[24][23].y
-          + TeleP[itele].Location[24][24].y)/4.;
+     y = (TeleP[telescopeNumber].Location[23][23].y
+          + TeleP[telescopeNumber].Location[23][24].y
+          + TeleP[telescopeNumber].Location[24][23].y
+          + TeleP[telescopeNumber].Location[24][24].y)/4.;
 
-     z = (TeleP[itele].Location[23][23].z 
-          + TeleP[itele].Location[23][24].z
-          + TeleP[itele].Location[24][23].z
-          + TeleP[itele].Location[24][24].z)/4.;
+     z = (TeleP[telescopeNumber].Location[23][23].z 
+          + TeleP[telescopeNumber].Location[23][24].z
+          + TeleP[telescopeNumber].Location[24][23].z
+          + TeleP[telescopeNumber].Location[24][24].z)/4.;
     }
-  if (iCsi == 3)
+  if (CsINumber == 3)
     {
-     x = (TeleP[itele].Location[23][7].x 
-          + TeleP[itele].Location[23][8].x
-          + TeleP[itele].Location[24][7].x
-          + TeleP[itele].Location[24][8].x)/4.;
+     x = (TeleP[telescopeNumber].Location[23][7].x 
+          + TeleP[telescopeNumber].Location[23][8].x
+          + TeleP[telescopeNumber].Location[24][7].x
+          + TeleP[telescopeNumber].Location[24][8].x)/4.;
 
-     y = (TeleP[itele].Location[23][7].y
-          + TeleP[itele].Location[23][8].y
-          + TeleP[itele].Location[24][7].y
-          + TeleP[itele].Location[24][8].y)/4.;
+     y = (TeleP[telescopeNumber].Location[23][7].y
+          + TeleP[telescopeNumber].Location[23][8].y
+          + TeleP[telescopeNumber].Location[24][7].y
+          + TeleP[telescopeNumber].Location[24][8].y)/4.;
 
-     z = (TeleP[itele].Location[23][7].z 
-          + TeleP[itele].Location[23][8].z
-          + TeleP[itele].Location[24][7].z
-          + TeleP[itele].Location[24][8].z)/4.;
+     z = (TeleP[telescopeNumber].Location[23][7].z 
+          + TeleP[telescopeNumber].Location[23][8].z
+          + TeleP[telescopeNumber].Location[24][7].z
+          + TeleP[telescopeNumber].Location[24][8].z)/4.;
     }
 
   float r = sqrt(pow(x,2)+pow(y,2)+pow(z,2));

@@ -22,13 +22,13 @@ class TDC1190
  public:
   TDC1190(int depth, int referenceChannel, int Nchannels);
   ~TDC1190();
-  unsigned short* read(unsigned short *point);
-  void readGlobalHeader(unsigned short word1, unsigned short word2);
-  void readTDCheader(unsigned short word1, unsigned short word2);
-  void readTDCmeasurement(unsigned short word1, unsigned short word2);
-  void readTDCtrailer(unsigned short word1, unsigned short word2);
-  void readTDCerror(unsigned short word1, unsigned short word2);
-  void readTrailer(unsigned short word1, unsigned short word2);
+  bool read(ifstream& evtfile);
+  bool readGlobalHeader(ifstream& evtfile);
+  bool readTDCheader(ifstream& evtfile);
+  bool readTDCmeasurement(ifstream& evtfile);
+  bool readTDCtrailer(ifstream& evtfile);
+  bool readTDCerror(ifstream& evtfile);
+  bool readTrailer(ifstream& evtfile);
   int eventCount;  //!< read from header
   int geographic;  //!< geographic address
   int bunchID;   //!< id of bunch

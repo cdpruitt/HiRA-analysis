@@ -32,7 +32,6 @@ using namespace std;
  * responsible for unpacking the data stream for physics events
  */
 
-
 class det
 {
  public:
@@ -40,7 +39,7 @@ class det
   det(histo_read * Histo_read);
   int type;
   ~det();
-  bool unpack(unsigned short *point,int runno);
+  bool unpack(ifstream& evtfile, int runno);
   hira *Hira;
   histo_sort * Histo_sort;
   histo_read * Histo_read;

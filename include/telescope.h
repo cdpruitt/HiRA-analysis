@@ -9,7 +9,6 @@
 #include <string>
 #include <sstream>
 #include "solution.h"
-#include "calibrate.h"
 #include "loss.h"
 #include "TRandom.h"
 class telescope
@@ -38,7 +37,7 @@ class telescope
   int id;
   float fenergy;
   float benergy;
-  float Sienergy;
+  float SuncalEnergy;
   float CsIenergy;
   float flow;
   float blow;
@@ -87,36 +86,36 @@ class telescope
 
   CLoss * Loss[25];
 
-  calibrate * calCsi;
-  calibrate * calCsid;
-  calibrate * calCsit;
-
-  calibrate * calCsiHe3;
-  calibrate * calCsiA;
-
-  calibrate * calCsiLi6;
-
-  calibrate * calCsiBe7;
-
-  calibrate * calCsiB10;
-  calibrate * calCsiB11;
-
-  calibrate * calCsiC11;
-  calibrate * calCsiC12;
-  calibrate * calCsiC13;
-
-  calibrate * calCsiN12;
-  calibrate * calCsiN13;
-  calibrate * calCsiN14;
-  calibrate * calCsiN15;
-
-  calibrate * calCsiO13;
-  calibrate * calCsiO14;
-  calibrate * calCsiO15;
-  calibrate * calCsiO16;
-  calibrate * calCsiF17;
-
-  calibrate * calFB;
+//  calibrate * calCsi;
+//  calibrate * calCsid;
+//  calibrate * calCsit;
+//
+//  calibrate * calCsiHe3;
+//  calibrate * calCsiA;
+//
+//  calibrate * calCsiLi6;
+//
+//  calibrate * calCsiBe7;
+//
+//  calibrate * calCsiB10;
+//  calibrate * calCsiB11;
+//
+//  calibrate * calCsiC11;
+//  calibrate * calCsiC12;
+//  calibrate * calCsiC13;
+//
+//  calibrate * calCsiN12;
+//  calibrate * calCsiN13;
+//  calibrate * calCsiN14;
+//  calibrate * calCsiN15;
+//
+//  calibrate * calCsiO13;
+//  calibrate * calCsiO14;
+//  calibrate * calCsiO15;
+//  calibrate * calCsiO16;
+//  calibrate * calCsiF17;
+//
+//  calibrate * calFB;
 
 };
 

@@ -35,7 +35,7 @@ class solution
   int iback;
   int ide;
   int ipid;
-  int itele;
+  int telescopeNumber;
   bool be8;
   // int istrip;
   float distTarget;

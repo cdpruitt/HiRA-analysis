@@ -65,22 +65,22 @@ int main()
   string name;
 
   TH1F con("con","",500,0,10);
-  for (int itele=0;itele<Ntele;itele++)
+  for (int telescopeNumber=0;telescopeNumber<Ntele;telescopeNumber++)
     {
       outstring.str("");
-      outstring << "F"<<itele;
+      outstring << "F"<<telescopeNumber;
       name = outstring.str();
-      canvas[itele] = new TCanvas(name.c_str());
-      canvas[itele]->Divide(6,6);
+      canvas[telescopeNumber] = new TCanvas(name.c_str());
+      canvas[telescopeNumber]->Divide(6,6);
       for (int istrip =0;istrip<Nstrip;istrip++)
         {
       
-          canvas[itele]->cd(istrip+1);
+          canvas[telescopeNumber]->cd(istrip+1);
           file >> i1 >> i2  >> slope >> intercept;
 
 
           outstring.str("");
-          outstring << "front/cal/EFC"<<itele<<"_"<<istrip;
+          outstring << "front/cal/EFC"<<telescopeNumber<<"_"<<istrip;
           string name = outstring.str();
           cout <<  name << endl;
           TH1I * hist = (TH1I*) f.Get(name.c_str());
@@ -131,11 +131,11 @@ int main()
               slope *= para[1];
               intercept = intercept*para[1] + para[0];
 	     }
-            fout << itele << " " << istrip << " " 
+            fout << telescopeNumber << " " << istrip << " " 
                  << slope << " " << intercept << endl;
-            fwhm << itele << " " << istrip << " " 
+            fwhm << telescopeNumber << " " << istrip << " " 
                   << para[2]*2.35 << endl;
-            int ii = itele*32+istrip;
+            int ii = telescopeNumber*32+istrip;
             xx[ii] = (float)ii;
             yy[ii] = para[2]*2.35;
             cout << para[0] << " " << para[1] << " " << para[2] << endl;
@@ -144,7 +144,7 @@ int main()
     }
 
   TFile g("ThFront.root","RECREATE");
-  for (int itele=0;itele<Ntele;itele++) canvas[itele]->Write();
+  for (int telescopeNumber=0;telescopeNumber<Ntele;telescopeNumber++) canvas[telescopeNumber]->Write();
   TCanvas fwhmCan("fwhm");
   TH2I frame2("frame2","",10,0,448,10,0,0.12);
   frame2.SetStats(kFALSE);

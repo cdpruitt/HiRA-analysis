@@ -157,172 +157,172 @@ histo_sort::histo_sort()
 
     dirFB->cd();
 
-    for (int itele=0;itele<NUMBER_OF_TELESCOPES;itele++)
+    for (int telescopeNumber=0;telescopeNumber<NUMBER_OF_TELESCOPES;telescopeNumber++)
     {
-        EfrontR[itele] = new TH1I*[NUMBER_OF_STRIPS];
-        EfrontC[itele] = new TH1I*[NUMBER_OF_STRIPS];
-        EfrontLR[itele] = new TH1I*[NUMBER_OF_STRIPS];
-        EfrontLC[itele] = new TH1I*[NUMBER_OF_STRIPS];
-        TfrontR[itele] = new TH1I*[NUMBER_OF_STRIPS];
+        EfrontR[telescopeNumber] = new TH1I*[NUMBER_OF_STRIPS];
+        EfrontC[telescopeNumber] = new TH1I*[NUMBER_OF_STRIPS];
+        EfrontLR[telescopeNumber] = new TH1I*[NUMBER_OF_STRIPS];
+        EfrontLC[telescopeNumber] = new TH1I*[NUMBER_OF_STRIPS];
+        TfrontR[telescopeNumber] = new TH1I*[NUMBER_OF_STRIPS];
 
-        EbackR[itele]  = new TH1I*[NUMBER_OF_STRIPS];
-        EbackC[itele]  = new TH1I*[NUMBER_OF_STRIPS];
-        EbackLR[itele]  = new TH1I*[NUMBER_OF_STRIPS];
-        EbackLC[itele]  = new TH1I*[NUMBER_OF_STRIPS];
-        TbackR[itele]  = new TH1I*[NUMBER_OF_STRIPS];
-
-        outstring.str("");
-        outstring << "FBMult_" << itele;
-        name = outstring.str();
-        dirFB->cd();
-        FBMult[itele] = new TH2I(name.c_str(),"",10,-0.5,9.5,10,-0.5,9.5);
-        FBMult[itele]->GetXaxis()->SetTitle("Front Multiplicity");
-        FBMult[itele]->GetYaxis()->SetTitle("Back Multiplicity");
+        EbackR[telescopeNumber]  = new TH1I*[NUMBER_OF_STRIPS];
+        EbackC[telescopeNumber]  = new TH1I*[NUMBER_OF_STRIPS];
+        EbackLR[telescopeNumber]  = new TH1I*[NUMBER_OF_STRIPS];
+        EbackLC[telescopeNumber]  = new TH1I*[NUMBER_OF_STRIPS];
+        TbackR[telescopeNumber]  = new TH1I*[NUMBER_OF_STRIPS];
 
         outstring.str("");
-        outstring << "FBDiff_" << itele;
+        outstring << "FBMult_" << telescopeNumber;
         name = outstring.str();
         dirFB->cd();
-        FBDiff[itele] = new TH1I(name.c_str(),"",100,0,20);
-        FBDiff[itele]->GetXaxis()->SetTitle("Front - Back");
+        FBMult[telescopeNumber] = new TH2I(name.c_str(),"",10,-0.5,9.5,10,-0.5,9.5);
+        FBMult[telescopeNumber]->GetXaxis()->SetTitle("Front Multiplicity");
+        FBMult[telescopeNumber]->GetYaxis()->SetTitle("Back Multiplicity");
 
         outstring.str("");
-        outstring << "FB_" << itele;
+        outstring << "FBDiff_" << telescopeNumber;
         name = outstring.str();
         dirFB->cd();
-        if(itele !=6 && itele!=7)
-            FB[itele] = new TH2I(name.c_str(),"",1024,0,80,1024,0,80);
+        FBDiff[telescopeNumber] = new TH1I(name.c_str(),"",100,0,20);
+        FBDiff[telescopeNumber]->GetXaxis()->SetTitle("Front - Back");
+
+        outstring.str("");
+        outstring << "FB_" << telescopeNumber;
+        name = outstring.str();
+        dirFB->cd();
+        if(telescopeNumber !=6 && telescopeNumber!=7)
+            FB[telescopeNumber] = new TH2I(name.c_str(),"",1024,0,80,1024,0,80);
         else
-            FB[itele] = new TH2I(name.c_str(),"",4096,0,500,4096,0,500);
-        FB[itele]->GetXaxis()->SetTitle("Front");
-        FB[itele]->GetYaxis()->SetTitle("Back");
+            FB[telescopeNumber] = new TH2I(name.c_str(),"",4096,0,500,4096,0,500);
+        FB[telescopeNumber]->GetXaxis()->SetTitle("Front");
+        FB[telescopeNumber]->GetYaxis()->SetTitle("Back");
 
         outstring.str("");
-        outstring << "FBDiffLG_" << itele;
+        outstring << "FBDiffLG_" << telescopeNumber;
         name = outstring.str();
         dirFB->cd();
-        FBDiffLG[itele] = new TH1I(name.c_str(),"",100,0,20);
-        FBDiffLG[itele]->GetXaxis()->SetTitle("Front - Back");
+        FBDiffLG[telescopeNumber] = new TH1I(name.c_str(),"",100,0,20);
+        FBDiffLG[telescopeNumber]->GetXaxis()->SetTitle("Front - Back");
 
         outstring.str("");
-        outstring << "EFTSum_" << itele;
+        outstring << "EFTSum_" << telescopeNumber;
         name = outstring.str();
         dirSum->cd();
-        EFTSum[itele] = new TH2I(name.c_str(),"",32,-0.5,31.5,4000,0,16000);
-        EFTSum[itele]->GetXaxis()->SetTitle("Strip Num");
-        EFTSum[itele]->GetYaxis()->SetTitle("Time [channel]");
+        EFTSum[telescopeNumber] = new TH2I(name.c_str(),"",32,-0.5,31.5,4000,0,16000);
+        EFTSum[telescopeNumber]->GetXaxis()->SetTitle("Strip Num");
+        EFTSum[telescopeNumber]->GetYaxis()->SetTitle("Time [channel]");
 
         outstring.str("");
-        outstring << "EBTSum_" << itele;
+        outstring << "EBTSum_" << telescopeNumber;
         name = outstring.str();
         dirSum->cd();
-        EBTSum[itele] = new TH2I(name.c_str(),"",32,-0.5,31.5,4000,0,16000);
-        EBTSum[itele]->GetXaxis()->SetTitle("Strip Num");
-        EBTSum[itele]->GetYaxis()->SetTitle("Time [channel]");
+        EBTSum[telescopeNumber] = new TH2I(name.c_str(),"",32,-0.5,31.5,4000,0,16000);
+        EBTSum[telescopeNumber]->GetXaxis()->SetTitle("Strip Num");
+        EBTSum[telescopeNumber]->GetYaxis()->SetTitle("Time [channel]");
 
         outstring.str("");
-        outstring << "EFCSum_" << itele;
+        outstring << "EFCSum_" << telescopeNumber;
         name = outstring.str();
         dirSum->cd();
-        EFCSum[itele] = new TH2I(name.c_str(),"",32,-0.5,31.5,10000,0,10);
-        EFCSum[itele]->GetXaxis()->SetTitle("Strip Num");
-        EFCSum[itele]->GetYaxis()->SetTitle("Energy [channel]");
+        EFCSum[telescopeNumber] = new TH2I(name.c_str(),"",32,-0.5,31.5,10000,0,10);
+        EFCSum[telescopeNumber]->GetXaxis()->SetTitle("Strip Num");
+        EFCSum[telescopeNumber]->GetYaxis()->SetTitle("Energy [channel]");
 
         outstring.str("");
-        outstring << "EFSum_" << itele;
+        outstring << "EFSum_" << telescopeNumber;
         name = outstring.str();
         dirSum->cd();
-        EFSum[itele] = new TH2I(name.c_str(),"",32,-0.5,31.5,10000,0,2000);
-        EFSum[itele]->GetXaxis()->SetTitle("Strip Num");
-        EFSum[itele]->GetYaxis()->SetTitle("Energy [channel]");
+        EFSum[telescopeNumber] = new TH2I(name.c_str(),"",32,-0.5,31.5,10000,0,2000);
+        EFSum[telescopeNumber]->GetXaxis()->SetTitle("Strip Num");
+        EFSum[telescopeNumber]->GetYaxis()->SetTitle("Energy [channel]");
 
         outstring.str("");
-        outstring << "EBCSum_" << itele;
+        outstring << "EBCSum_" << telescopeNumber;
         name = outstring.str();
         dirSum->cd();
-        EBCSum[itele] = new TH2I(name.c_str(),"",32,-0.5,31.5,10000,0,10);
-        EBCSum[itele]->GetXaxis()->SetTitle("Strip Num");
-        EBCSum[itele]->GetYaxis()->SetTitle("Energy [channel]");
+        EBCSum[telescopeNumber] = new TH2I(name.c_str(),"",32,-0.5,31.5,10000,0,10);
+        EBCSum[telescopeNumber]->GetXaxis()->SetTitle("Strip Num");
+        EBCSum[telescopeNumber]->GetYaxis()->SetTitle("Energy [channel]");
 
         outstring.str("");
-        outstring << "EBSum_" << itele;
+        outstring << "EBSum_" << telescopeNumber;
         name = outstring.str();
         dirSum->cd();
-        EBSum[itele] = new TH2I(name.c_str(),"",32,-0.5,31.5,1000,0,500);
-        EBSum[itele]->GetXaxis()->SetTitle("Strip Num");
-        EBSum[itele]->GetYaxis()->SetTitle("Energy [channel]");
+        EBSum[telescopeNumber] = new TH2I(name.c_str(),"",32,-0.5,31.5,1000,0,500);
+        EBSum[telescopeNumber]->GetXaxis()->SetTitle("Strip Num");
+        EBSum[telescopeNumber]->GetYaxis()->SetTitle("Energy [channel]");
 
         for (int istrip=0;istrip<NUMBER_OF_STRIPS;istrip++)
         {
             outstring.str("");
-            outstring << "EF"<<itele<<"_"<<istrip;
+            outstring << "EF"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirFrontRaw->cd();
-            EfrontR[itele][istrip] = new TH1I(name.c_str(),"",4000,0,16000);
-            EfrontR[itele][istrip]->GetXaxis()->SetTitle("Energy High Gain[channel]");
+            EfrontR[telescopeNumber][istrip] = new TH1I(name.c_str(),"",4000,0,16000);
+            EfrontR[telescopeNumber][istrip]->GetXaxis()->SetTitle("Energy High Gain[channel]");
 
             outstring.str("");
-            outstring << "EFLG"<<itele<<"_"<<istrip;
+            outstring << "EFLG"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirFrontLGR->cd();
-            EfrontLR[itele][istrip] = new TH1I(name.c_str(),"",4000,0,16000);
-            EfrontLR[itele][istrip]->GetXaxis()->SetTitle("Energy Low Gain [channel]");
+            EfrontLR[telescopeNumber][istrip] = new TH1I(name.c_str(),"",4000,0,16000);
+            EfrontLR[telescopeNumber][istrip]->GetXaxis()->SetTitle("Energy Low Gain [channel]");
 
             outstring.str("");
-            outstring << "EFC"<<itele<<"_"<<istrip;
+            outstring << "EFC"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirFrontCal->cd();
-            EfrontC[itele][istrip] = new TH1I(name.c_str(),"",4000,0,500);
-            EfrontC[itele][istrip]->GetXaxis()->SetTitle("Energy [MeV]");
+            EfrontC[telescopeNumber][istrip] = new TH1I(name.c_str(),"",4000,0,500);
+            EfrontC[telescopeNumber][istrip]->GetXaxis()->SetTitle("Energy [MeV]");
 
             outstring.str("");
-            outstring << "EFLC"<<itele<<"_"<<istrip;
+            outstring << "EFLC"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirFrontLGC->cd();
-            EfrontLC[itele][istrip] = new TH1I(name.c_str(),"",4000,0,500);
-            EfrontLC[itele][istrip]->GetXaxis()->SetTitle("Energy [MeV]");
+            EfrontLC[telescopeNumber][istrip] = new TH1I(name.c_str(),"",4000,0,500);
+            EfrontLC[telescopeNumber][istrip]->GetXaxis()->SetTitle("Energy [MeV]");
 
             outstring.str("");
-            outstring << "TF"<<itele<<"_"<<istrip;
+            outstring << "TF"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirFrontTime->cd();
-            TfrontR[itele][istrip] = new TH1I(name.c_str(),"",2000,0,16000);
-            TfrontR[itele][istrip]->GetXaxis()->SetTitle("time [channels]");
+            TfrontR[telescopeNumber][istrip] = new TH1I(name.c_str(),"",2000,0,16000);
+            TfrontR[telescopeNumber][istrip]->GetXaxis()->SetTitle("time [channels]");
 
             outstring.str("");
-            outstring << "EB"<<itele<<"_"<<istrip;
+            outstring << "EB"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirBackRaw->cd();
-            EbackR[itele][istrip] = new TH1I(name.c_str(),"",4000,0,16000);
-            EbackR[itele][istrip]->GetXaxis()->SetTitle("Energy High Gain[channel]");
+            EbackR[telescopeNumber][istrip] = new TH1I(name.c_str(),"",4000,0,16000);
+            EbackR[telescopeNumber][istrip]->GetXaxis()->SetTitle("Energy High Gain[channel]");
 
             outstring.str("");
-            outstring << "EBLG"<<itele<<"_"<<istrip;
+            outstring << "EBLG"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirBackLGR->cd();
-            EbackLR[itele][istrip] = new TH1I(name.c_str(),"",4000,0,16000);
-            EbackLR[itele][istrip]->GetXaxis()->SetTitle("Energy Low Gain[channel]");
+            EbackLR[telescopeNumber][istrip] = new TH1I(name.c_str(),"",4000,0,16000);
+            EbackLR[telescopeNumber][istrip]->GetXaxis()->SetTitle("Energy Low Gain[channel]");
 
             outstring.str("");
-            outstring << "EBC"<<itele<<"_"<<istrip;
+            outstring << "EBC"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirBackCal->cd();
-            EbackC[itele][istrip] = new TH1I(name.c_str(),"",4000,0,500);
-            EbackC[itele][istrip]->GetXaxis()->SetTitle("Energy [MeV]");
+            EbackC[telescopeNumber][istrip] = new TH1I(name.c_str(),"",4000,0,500);
+            EbackC[telescopeNumber][istrip]->GetXaxis()->SetTitle("Energy [MeV]");
 
             outstring.str("");
-            outstring << "EBLC"<<itele<<"_"<<istrip;
+            outstring << "EBLC"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirBackLGC->cd();
-            EbackLC[itele][istrip] = new TH1I(name.c_str(),"",4000,0,500);
-            EbackLC[itele][istrip]->GetXaxis()->SetTitle("Energy [MeV]");
+            EbackLC[telescopeNumber][istrip] = new TH1I(name.c_str(),"",4000,0,500);
+            EbackLC[telescopeNumber][istrip]->GetXaxis()->SetTitle("Energy [MeV]");
 
             outstring.str("");
-            outstring << "TB"<<itele<<"_"<<istrip;
+            outstring << "TB"<<telescopeNumber<<"_"<<istrip;
             name = outstring.str();
             dirBackTime->cd();
-            TbackR[itele][istrip] = new TH1I(name.c_str(),"",2000,0,16000);
-            TbackR[itele][istrip]->GetXaxis()->SetTitle("time [channels]");
+            TbackR[telescopeNumber][istrip] = new TH1I(name.c_str(),"",2000,0,16000);
+            TbackR[telescopeNumber][istrip]->GetXaxis()->SetTitle("time [channels]");
         }
     }
 

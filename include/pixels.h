@@ -23,10 +23,10 @@ class pixels
  public:
   pixels();
   teleP TeleP[14];
-  location getCenter(int itele);
-  float getCsiCenter(int itele, int iCsi);
+  location getCenter(int telescopeNumber);
+  float getCsiCenter(int telescopeNumber, int CsINumber);
   float phi;
-  float getAngle(int itele,int ifront, int iback);
+  float getAngle(int telescopeNumber,int ifront, int iback);
 
   
 };

@@ -16,11 +16,12 @@ calibrate::calibrate(int Ntele0, int Nstrip0, string name, int order0)
     Nstrip = Nstrip0;
     Ntele = Ntele0;
     order = order0;
-    Coeff = new coeff*[Ntele];
+
+    vector<vector<float>> polyCoefficients;
 
     for (int i=0;i<Ntele;i++)
     {
-        Coeff[i] = new coeff [Nstrip];
+        polyCoefficients.push_back(vector<float>)
     }
 
     ifstream file(name.c_str());

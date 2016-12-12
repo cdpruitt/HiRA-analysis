@@ -9,7 +9,7 @@ void correl::load(solution* particle)
     {
       proton[multProton] = particle;
       if (multProton < 7) multProton++;
-      multPro[particle->itele]++;
+      multPro[particle->telescopeNumber]++;
       //proton[multProton]->A = 1;
 
     }
@@ -17,66 +17,66 @@ void correl::load(solution* particle)
     {
       H2[multH2] = particle;
       if (multH2 < 5) multH2++;
-      itele = particle->itele;
+      telescopeNumber = particle->telescopeNumber;
       //H2[multH2]->A = 2;
-      multh2[itele]++;
+      multh2[telescopeNumber]++;
     }
   else if (particle->iZ == 1 && particle->iA == 3)
     {
 
       H3[multH3] = particle;
       if (multH3 < 5) multH3++;
-      itele = particle->itele;
+      telescopeNumber = particle->telescopeNumber;
       //H3[multH3]->A = 3;
-      multh3[itele]++;
+      multh3[telescopeNumber]++;
     }
  else if (particle->iZ == 2 && particle->iA == 3)
     {
       He3[mult3He] = particle;
       if (mult3He < 5) mult3He++;
-      itele = particle->itele;
+      telescopeNumber = particle->telescopeNumber;
       //He3[mult3He]->A = 3;
-      mult3he[itele]++;
+      mult3he[telescopeNumber]++;
     }
   else if (particle->iZ == 2 && particle->iA ==4)
     {
       alpha[multAlpha] = particle;
       if (multAlpha < 5) multAlpha++;
-      itele = particle->itele;
+      telescopeNumber = particle->telescopeNumber;
       //alpha[multAlpha]->A = 4;
-      multAlp[itele]++;
+      multAlp[telescopeNumber]++;
     }
   else if (particle->iZ == 3 && particle->iA == 6)
     {
       Li6[mult6Li] = particle;
       if (mult6Li < 5) mult6Li++;
-      itele = particle->itele;
+      telescopeNumber = particle->telescopeNumber;
      
-      mult6li[itele]++;
+      mult6li[telescopeNumber]++;
     }
   else if (particle->iZ == 6 && particle->iA == 9)
     {
       C9[mult9C] = particle;
       if (mult9C < 5) mult9C++;
-      itele = particle->itele;
+      telescopeNumber = particle->telescopeNumber;
      
-      mult9c[itele]++;
+      mult9c[telescopeNumber]++;
     }
   else if (particle->iZ == 6 && particle->iA == 10)
     {
       C10[mult10C] = particle;
       if (mult10C < 5) mult10C++;
-      itele = particle->itele;
+      telescopeNumber = particle->telescopeNumber;
      
-      mult10c[itele]++;
+      mult10c[telescopeNumber]++;
     }
   else if (particle->iZ == 8 && particle->iA == 13)
     {
       O13[mult13O] = particle;
       if (mult13O < 5) mult13O++;
-      itele = particle->itele;
+      telescopeNumber = particle->telescopeNumber;
      
-      mult13o[itele]++;
+      mult13o[telescopeNumber]++;
     }
 }
 //**********************************************************
@@ -225,18 +225,18 @@ void correl::Reset()
   mult10C=0;
   mult13O =0;
   multGamma = 0;
-  for (int itele=0;itele<14;itele++) 
+  for (int telescopeNumber=0;telescopeNumber<14;telescopeNumber++) 
     {
-      multAlp[itele] = 0;
-      multPro[itele] = 0;
-      multh2[itele] = 0;
-      mult3he[itele] = 0;
-      mult6li[itele] = 0;
-      multh3[itele] = 0;
-      mult9c[itele]=0;
-      mult10c[itele]=0;
-      mult13o[itele]=0;
-      mult_Gamma[itele] = 0;
+      multAlp[telescopeNumber] = 0;
+      multPro[telescopeNumber] = 0;
+      multh2[telescopeNumber] = 0;
+      mult3he[telescopeNumber] = 0;
+      mult6li[telescopeNumber] = 0;
+      multh3[telescopeNumber] = 0;
+      mult9c[telescopeNumber]=0;
+      mult10c[telescopeNumber]=0;
+      mult13o[telescopeNumber]=0;
+      mult_Gamma[telescopeNumber] = 0;
     }
 }
 
