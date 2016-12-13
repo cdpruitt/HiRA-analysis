@@ -54,6 +54,3 @@ bool pid::getPID(float x, float y)
     }
    return false;
 }
-
-
-

@@ -10,14 +10,6 @@
  * CAEN VME modules
  */
 
-struct ADCchannel
-{
-    unsigned short channelNumber;
-    unsigned short ADCvalue;
-    unsigned short underflow;
-    unsigned short overflow;
-};
-
 class caen
 {
  public:

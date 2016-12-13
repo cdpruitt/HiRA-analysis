@@ -18,6 +18,6 @@ class CNewton : public CKinematics
   float getMomentum(float eKin,float mass);
   float transformMomentum(float* mom,float* vreference,float energyTot,
     float*momNew);
-  float gamma(float vel);
+  float gamma();
 };
 #endif 

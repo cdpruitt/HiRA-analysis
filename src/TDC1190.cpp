@@ -1,6 +1,6 @@
 #include <fstream>
 #include "../include/TDC1190.h"
-#include "../include/buffer.h"
+#include "../include/readData.h"
 
 /**
  * constructor
@@ -37,11 +37,11 @@ bool TDC1190::readGlobalHeader(ifstream& evtfile)
 {
     //extract information
 
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short header1 = buffer[0];
+    unsigned short header1;
+    readWord(evtfile,&header1);
 
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short header2 = buffer[0];
+    unsigned short header2;
+    readWord(evtfile,&header2);
 
     unsigned short bit =  (header1>>14) & 0x1;
     if (bit == 0) 
@@ -70,11 +70,11 @@ bool TDC1190::readGlobalHeader(ifstream& evtfile)
  */
 bool TDC1190::readTDCheader(ifstream& evtfile)
 {
-    evtfile.read((char*)buffer,BUFFER_WORDS);
     unsigned short header2;
+    readWord(evtfile,&header2);
 
-    evtfile.read((char*)buffer,BUFFER_WORDS);
     unsigned short header1;
+    readWord(evtfile,&header1);
 
     //extract information
     unsigned short bit =  (header1>>11) & 0x1;
@@ -99,11 +99,11 @@ bool TDC1190::readTDCheader(ifstream& evtfile)
  */
 bool TDC1190::readTDCmeasurement(ifstream& evtfile)
 {
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short data1  = buffer[0];
+    unsigned short data1;
+    readWord(evtfile,&data1);
 
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short data2  = buffer[0];
+    unsigned short data2;
+    readWord(evtfile,&data2);
 
     /*if (front != 0) 
     {
@@ -148,11 +148,11 @@ bool TDC1190::readTDCmeasurement(ifstream& evtfile)
 
 bool TDC1190::readTDCtrailer(ifstream& evtfile)
 {
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short trailer1  = buffer[0];
+    unsigned short trailer1;
+    readWord(evtfile,&trailer1);
 
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short trailer2  = buffer[0];
+    unsigned short trailer2;
+    readWord(evtfile,&trailer2);
 
     unsigned short bit = (trailer1>>11);
     if (bit != 0x3)
@@ -177,11 +177,11 @@ bool TDC1190::readTDCtrailer(ifstream& evtfile)
 
 bool TDC1190::readTDCerror(ifstream& evtfile)
 {
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short error2  = buffer[0];
+    unsigned short error2;
+    readWord(evtfile,&error2);
 
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short error1  = buffer[0];
+    unsigned short error1;
+    readWord(evtfile,&error1);
 
     unsigned short bit = (error2>>14);
     if (bit != 0x1)
@@ -202,12 +202,12 @@ bool TDC1190::readTDCerror(ifstream& evtfile)
  */
 bool TDC1190::readTrailer(ifstream& evtfile)
 {
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short trailer2  = buffer[0];
+    unsigned short trailer2;
+    readWord(evtfile,&trailer2);
 
-    evtfile.read((char*)buffer,BUFFER_WORDS);
-    unsigned short trailer1  = buffer[0];
-    
+    unsigned short trailer1;
+    readWord(evtfile,&trailer1);
+
     int geo = trailer2 & 0x1F;
     if (geo != geographic)
     {

@@ -35,11 +35,11 @@ using namespace std;
 class det
 {
  public:
-  det(histo_sort * Histo_sort, forest * Forest);
+  det(histo_sort * Histo_sort);///, forest * Forest);
   det(histo_read * Histo_read);
   int type;
   ~det();
-  bool unpack(ifstream& evtfile, int runno);
+  bool unpack(ifstream& evtfile);
   hira *Hira;
   histo_sort * Histo_sort;
   histo_read * Histo_read;
@@ -64,7 +64,7 @@ class det
   int CsImult;
 
  private:
-  doppler *Doppler;
+  ///doppler *Doppler;
 
 };
 #endif

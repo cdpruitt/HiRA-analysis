@@ -1,4 +1,5 @@
 #include "../include/solution.h"
+#include "../include/physicalConstants.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -47,7 +48,7 @@ void solution::getMomentum()
   else if (ipid == 11) A = 3;
   else if (ipid == 0) return;
 
-  mass = Kinematics.nMass * (float)A;
+  mass = NEUTRON_MASS * (float)A;
   momentum = Kinematics.getMomentum(Ekin,mass);
   Mvect[0] = momentum*sin(theta)*cos(phi);
   Mvect[1] = momentum*sin(theta)*sin(phi);

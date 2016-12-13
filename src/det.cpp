@@ -1,15 +1,15 @@
 #include "../include/det.h"
-#include "../include/buffer.h"
+#include "../include/readData.h"
 
 #include <fstream>
 #include <iostream>
 
 // Constructor
-det::det(histo_sort * Histo0, forest * Forest0)
+det::det(histo_sort * Histo0)///, forest * Forest0)
 {
     type = 0;
     Histo_sort = Histo0;
-    Forest = Forest0;
+    ///Forest = Forest0;
     ran = new TRandom;
     Hira = new hira(ran,Histo_sort);
 }
@@ -27,7 +27,7 @@ det::~det()
 {
     delete Hira;
     delete ran;
-    if (type == 0)delete Forest;
+    ///if (type == 0)delete Forest;
     cout << "number of good tree events " << ngood << endl;
     cout << "det removed" << endl;
 }
@@ -35,12 +35,15 @@ det::~det()
 /* unpacks a physics event from the data stream
  * param point0 - pointer to location in data stream
  */
-bool det::unpack(ifstream& evtfile, int runno)
+bool det::unpack(ifstream& evtfile)
 {
     Hira->reset();
-    evtfile.read((char*)buffer,BUFFER_BYTES);
-    evtfile.read((char*)buffer,BUFFER_BYTES);
-    return Hira->unpack(evtfile,runno);
+    unsigned short dummy;
+
+    readNextWord(evtfile,&dummy);
+    readNextWord(evtfile,&dummy);
+
+    return Hira->unpack(evtfile);
 }
 
 //*********************************
@@ -96,7 +99,7 @@ void det::corr_11O()
         Correl.makeArray(1);
         float Erel_11O = Correl.findErel();
 
-        float thetaCM = Correl.thetaCM;
+        ///float thetaCM = Correl.thetaCM;
         Histo_read->Erel_11O_2p9C->Fill(Erel_11O);
         Histo_read->vel_11O_2p9C->Fill(Correl.velocityCM);
 
@@ -145,8 +148,8 @@ void det::corr_6Li()
         Correl.mask2H[0]=1;   
         Correl.makeArray(1);
         float Erel_6Li = Correl.findErel();
-        float thetaCM = Correl.thetaCM;
-        float Ex = Erel_6Li + Q6Li;
+        ///float thetaCM = Correl.thetaCM;
+        ///float Ex = Erel_6Li + Q6Li;
         Histo_read->Erel_6Li->Fill(Erel_6Li);
     }
 }
@@ -161,7 +164,7 @@ void det::corr_7Li()
         Correl.mask3H[0]=1;   
         Correl.makeArray(1);
         float Erel_7Li = Correl.findErel();
-        float thetaCM = Correl.thetaCM;
+        ///float thetaCM = Correl.thetaCM;
         float Ex = Erel_7Li + Q7Li;
         Histo_read->Erel_7Li->Fill(Ex);
         Histo_read->vel_7Li->Fill(Correl.velocityCM);
@@ -217,7 +220,7 @@ void det::corr_7Be()
 
 void det::treeGrow()
 {
-    Forest->reset(); //clear the event here. reset function in forest, I think
+    ///Forest->reset(); //clear the event here. reset function in forest, I think
     for (int telescopeNumber = 0; telescopeNumber<NUMBER_OF_TELESCOPES; telescopeNumber++)
     {
         if(!(Hira->Telescope[telescopeNumber]->Front.Nstore > 0
@@ -230,31 +233,31 @@ void det::treeGrow()
 
         for (int i=0; i < Hira->Telescope[telescopeNumber]->Front.Nstore; i++)
         {
-            Forest->event->frontE[Forest->event->nfront] = Hira->Telescope[telescopeNumber]->Front.Order[i].energy;
-            Forest->event->frontT[Forest->event->nfront] = Hira->Telescope[telescopeNumber]->Front.Order[i].time;
-            Forest->event->frontID[Forest->event->nfront] = NUMBER_OF_STRIPS*telescopeNumber + Hira->Telescope[telescopeNumber]->Front.Order[i].strip;
-            Forest->event->nfront++;
+            ///Forest->event->frontE[Forest->event->nfront] = Hira->Telescope[telescopeNumber]->Front.Order[i].energy;
+            ///Forest->event->frontT[Forest->event->nfront] = Hira->Telescope[telescopeNumber]->Front.Order[i].time;
+            ///Forest->event->frontID[Forest->event->nfront] = NUMBER_OF_STRIPS*telescopeNumber + Hira->Telescope[telescopeNumber]->Front.Order[i].strip;
+            ///Forest->event->nfront++;
         }
 
         for (int i=0; i < Hira->Telescope[telescopeNumber]->Back.Nstore; i++)
         {
-            Forest->event->backE[Forest->event->nback] = Hira->Telescope[telescopeNumber]->Back.Order[i].energy;
-            Forest->event->backT[Forest->event->nback] = Hira->Telescope[telescopeNumber]->Back.Order[i].time;
-            Forest->event->backID[Forest->event->nback] = NUMBER_OF_STRIPS*telescopeNumber + Hira->Telescope[telescopeNumber]->Back.Order[i].strip;
-            Forest->event->nback++;
+            ///Forest->event->backE[Forest->event->nback] = Hira->Telescope[telescopeNumber]->Back.Order[i].energy;
+            ///Forest->event->backT[Forest->event->nback] = Hira->Telescope[telescopeNumber]->Back.Order[i].time;
+            ///Forest->event->backID[Forest->event->nback] = NUMBER_OF_STRIPS*telescopeNumber + Hira->Telescope[telescopeNumber]->Back.Order[i].strip;
+            ///Forest->event->nback++;
         }
 
         for (int i = 0; i < Hira->Telescope[telescopeNumber]->Csi.Nstore; i++)
         {
-            Forest->event->csiE[Forest->event->ncsi] = Hira->Telescope[telescopeNumber]->Csi.Order[i].energy;
-            Forest->event->csiER[Forest->event->ncsi] = Hira->Telescope[telescopeNumber]->Csi.Order[i].energyR;
-            Forest->event->csiT[Forest->event->ncsi] = Hira->Telescope[telescopeNumber]->Csi.Order[i].time;
-            Forest->event->csiID[Forest->event->ncsi] = CSIS_PER_TELESCOPE*telescopeNumber + Hira->Telescope[telescopeNumber]->Csi.Order[i].strip;
-            Forest->event->ncsi++;
+            ///Forest->event->csiE[Forest->event->ncsi] = Hira->Telescope[telescopeNumber]->Csi.Order[i].energy;
+            ///Forest->event->csiER[Forest->event->ncsi] = Hira->Telescope[telescopeNumber]->Csi.Order[i].energyR;
+            ///Forest->event->csiT[Forest->event->ncsi] = Hira->Telescope[telescopeNumber]->Csi.Order[i].time;
+            ///Forest->event->csiID[Forest->event->ncsi] = CSIS_PER_TELESCOPE*telescopeNumber + Hira->Telescope[telescopeNumber]->Csi.Order[i].strip;
+            ///Forest->event->ncsi++;
         }
     }
 
-    Forest->tree->Fill();
+    ///Forest->tree->Fill();
 }
 
 void det::loadTree(Event *event)
@@ -263,7 +266,7 @@ void det::loadTree(Event *event)
     int strip = 0;
     Hira->reset();
 
-    for (int j=0; j<event->nfront; j++)
+    /*/for (int j=0; j<event->nfront; j++)
     {
         telescopeNumber = event->frontID[j]/NUMBER_OF_STRIPS; //32 strips on the front
         strip = event->frontID[j]%NUMBER_OF_STRIPS;
@@ -282,5 +285,5 @@ void det::loadTree(Event *event)
         telescopeNumber = event->csiID[j]/CSIS_PER_TELESCOPE; //CSIS_PER_TELESCOPE CsIs
         strip = event->csiID[j]%CSIS_PER_TELESCOPE;
         Hira->Telescope[telescopeNumber]->Csi.Add(strip, event->csiE[j], event->csiER[j], event->csiT[j]);
-    }
+    }/*/
 }

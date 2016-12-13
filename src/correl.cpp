@@ -1,4 +1,5 @@
 #include "../include/correl.h"
+#include "../include/physicalConstants.h"
 #include <cmath>
 
 using namespace std;
@@ -281,8 +282,8 @@ float correl::findErel()
   PparaC = momC[2];
   PtotC = sqrt(pow(momC[0],2)+pow(momC[1],2)+pow(momC[2],2));
 
-  //velocity of cemter of mass
-  velocityCM = momentumCM*Kinematics.c/energyTot;
+  //velocity of center of mass
+  velocityCM = momentumCM*SPEED_OF_LIGHT/energyTot;
 
 
   float velCM[3]={0.};

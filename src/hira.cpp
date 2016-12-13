@@ -1,5 +1,5 @@
 #include "../include/hira.h"
-#include "../include/buffer.h"
+#include "../include/readData.h"
 
 hira::hira(TRandom * ran0, histo_sort * Histo0)
 {
@@ -34,7 +34,7 @@ void hira::init()
 
     string name;
     getline(ifile,name);
-    int i1,iMB,cbf,cbb,cbfl,cbbl;
+    int i1,iMB,cbf,cbb;///cbfl,///cbbl;
     for (;;)
     {
         ifile >> i1 >> iMB >> cbf>> cbb;
@@ -77,8 +77,8 @@ void hira::init()
     csimap.clear();
 
     //read in calibrations
-    int Ntele = NUMBER_OF_TELESCOPES;
-    int Nstrip = NUMBER_OF_STRIPS;
+    ///int Ntele = NUMBER_OF_TELESCOPES;
+    ///int Nstrip = NUMBER_OF_STRIPS;
     /*name = "cal/front.cal";
       calFront = new calibrate(Ntele,Nstrip,name,1);
       name = "cal/back.cal";
@@ -143,13 +143,13 @@ void hira::init()
 }
 
 //*************************************************************
-bool hira::unpack(ifstream& evtfile,int runno)
+bool hira::unpack(ifstream& evtfile)
 {
-    return unpackSi_HINP4(evtfile) && unpackCsi(evtfile,runno);
+    return unpackSi_HINP4(evtfile) && unpackCsi(evtfile);
 }
 
 //*************************************************************
-bool hira::unpackCsi(ifstream& evtfile,int runno)
+bool hira::unpackCsi(ifstream& evtfile)
 {
     NE = 0;
     CsIM = 0;
@@ -168,22 +168,27 @@ bool hira::unpackCsi(ifstream& evtfile,int runno)
             point += 2;
             continue;
         } 
-        ADC.channelsHit = 0;
-        point = ADC.read(point);  // suck out the info in the qdc
-        for (int i=0;i<ADC.channelsHit;i++)
+        ///point = ADC.read(point);  // suck out the info in the qdc
+        for (int i=0;i<ADC.channelsHit.value;i++)
         {
+            if (ADC.allChannelsData[i].underflow.value)
+            {
+                continue;
+            }
 
-            if (ADC.events[i].underflow) continue;
-            if (ADC.events[i].overflow) continue;
-            int id = ADC.events[i].channelNumber + 32*iadc;
-            int uncalEnergy = ADC.events[i].ADCvalue;
+            if (ADC.allChannelsData[i].overflow.value)
+            {
+                continue;
+            }
+            int id = ADC.allChannelsData[i].channelID.value + 32*iadc;
+            int uncalEnergy = ADC.allChannelsData[i].ADCValue.value;
 
             if(id < TOTAL_CSIS)
             {
                 int CsINumber = CsIMap[id].CsINumber;
                 int telescopeNumber = CsIMap[id].telescopeNumber;
 
-                float energy; //= calCsi->getEnergy(0,CsINumber,uncalEnergy+ran->Rndm());
+                float energy = 0; //= calCsi->getEnergy(0,CsINumber,uncalEnergy+ran->Rndm());
 
                 DataE[NE].id = CsINumber;
                 DataE[NE].uncalEnergy = uncalEnergy;
@@ -221,14 +226,6 @@ bool hira::unpackCsi(ifstream& evtfile,int runno)
             }
 
             Histo->Blocker_ESum->Fill(BlockerESum);
-
-            //	  else if(id ==TOTAL_CSIS && runno >= 170 && runno <=172) //Blocker CsI
-            //  {
-            //    Histo->Blocker_E->Fill(uncalEnergy);
-            //    Blocker_e = uncalEnergy;
-            //  }
-
-
         }
 
         Histo->CsIMult->Fill(CsIM);
@@ -828,32 +825,24 @@ bool hira::unpackCsi(ifstream& evtfile,int runno)
 bool hira::unpackSi_HINP4(ifstream& evtfile)
 {
     unsigned short marker;
-    evtfile.read((char*)buffer,BUFFER_BYTES);
+    readNextWord(evtfile,&marker);
 
     for(int iMB = 0;iMB<2;iMB++)
     {
-        evtfile.read((char*)buffer,BUFFER_BYTES);
-        evtfile.read((char*)buffer,BUFFER_BYTES);
-        marker = buffer[0];
+        unsigned short dummy;
+        readNextWord(evtfile,&dummy);
+        readNextWord(evtfile,&dummy);
 
         if (marker != xmarker[iMB])
         { cout << "Did not read the proper XLM marker. Was " << hex << marker << " expected " << xmarker[iMB] << dec <<endl;
             return false;
         }
 
-        int NstripsRead = 0;
-        unsigned short chipWords = buffer[0];
-        int NWords = buffer[0];
-        //  if (chipWords == 8)
-        //  {
-        //    NstripsRead = 0;
-        //    point += 10;
-        //    return (bool) 1;
-        //  }
-        evtfile.read((char*)buffer,BUFFER_BYTES);
-        evtfile.read((char*)buffer,BUFFER_BYTES);
+        unsigned int NstripsRead = 0;
+        unsigned short chipWords;
+        int NWords;
 
-        NstripsRead = buffer[0];
+        readNextWord(evtfile,&NstripsRead);
 
         if(NstripsRead %4 !=0) 
         {
@@ -862,31 +851,37 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
 
         if (NstripsRead > 384)
         {
-            evtfile.read((char*)buffer,8*BUFFER_BYTES);
+            unsigned int dummy;
+            readNextWord(evtfile,&dummy);
+            readNextWord(evtfile,&dummy);
+            // supposed to be 8 bytes? or 16?
+
             return false; // bad buffer
         }
 
-        evtfile.read((char*)buffer,5*BUFFER_BYTES);
+        char dummy2;
+        readNextWord(evtfile,&dummy); 
+        readNextWord(evtfile,&dummy2); 
+        // supposed to be 5 bytes? or 10?
 
         NstripsRead /= 4;
 
-        for (int istrip = 0;istrip < NstripsRead;istrip++)
+        for (int istrip = 0;istrip <(int)NstripsRead;istrip++)
         {
-            evtfile.read((char*)buffer,2*BUFFER_BYTES);
-            unsigned short id = buffer[0];
+            unsigned short id;
+            readNextWord(evtfile,&id);
 
             unsigned short chipNum = (id&0x1FE0)>>5;
             unsigned short chanNum = id & 0x1F;
 
-            evtfile.read((char*)buffer,2*BUFFER_BYTES);
-            unsigned short uncalEnergy = buffer[0];
+            unsigned short uncalEnergy;
+            readNextWord(evtfile,&uncalEnergy);
 
-            evtfile.read((char*)buffer,2*BUFFER_BYTES);
-            unsigned short ilowenergy = buffer[0];
+            unsigned short ilowenergy;
+            readNextWord(evtfile,&ilowenergy);
 
-            evtfile.read((char*)buffer,2*BUFFER_BYTES);
-            unsigned short uncalTime = buffer[0]; 
-            unsigned short underOver = 0;   //No under or overflow in HINP4
+            unsigned short uncalTime;
+            readNextWord(evtfile,&uncalTime);
 
             if (chipNum%2 == 0)
             {
@@ -1006,7 +1001,7 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
         }
     }
 
-    return (buffer[0] != 0xe0fe);
+    return true; // need to return != 0xe0fe
 }
 
 //***************************************************************

@@ -161,7 +161,7 @@ void elist::reset()
 }
 //*********************************************************************
   //looks for cross talks events
-void elist::Neighbours(string side,float factor1,float factor2)
+void elist::Neighbours(string side)
 {
 
   if (Nstore <1) return; // nothing to look at 

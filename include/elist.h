@@ -37,5 +37,5 @@ class elist
   void Add(int, float, int, int);
   int  Reduce(char*);
   void reset();
-  void Neighbours(string,float,float);
+  void Neighbours(string);
 };

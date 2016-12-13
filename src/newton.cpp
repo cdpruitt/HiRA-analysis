@@ -27,8 +27,8 @@ float CNewton::transformMomentum(float* mom, float *Vreference,
   return Ekin;
 }
 //****************************************
-float CNewton::gamma(float vel)
+float CNewton::gamma()
 {
-  return 1.;
+  return 1;
 }
 

@@ -6,7 +6,7 @@
 #include "histo_sort.h"
 #include "histo_read.h"
 #include "telescope.h"
-#include "caen.h"
+#include "ADCEvent.h"
 #include "pixels.h"
 #include "TDC1190.h"
 #include "geometry.h"
@@ -48,11 +48,11 @@ class hira
 
         int type;
         void init();
-        bool unpack(ifstream& evtfile,int runno);
+        bool unpack(ifstream& evtfile);
         bool unpackSi_sis(ifstream& evtfile);
         bool unpackSi_HINP4(ifstream& evtfile);
         bool unpackSi_adc(ifstream& evtfile);
-        bool unpackCsi(ifstream& evtfile, int runno);
+        bool unpackCsi(ifstream& evtfile);
         void analyze();
         telescope **Telescope;
         void reset();
@@ -71,7 +71,7 @@ class hira
 
         histo_sort * Histo;
         histo_read * Histo_read;
-        caen ADC;
+        ADCEvent ADC;
         TDC1190 *TDC;
 
         dataE DataE[TOTAL_CSIS];

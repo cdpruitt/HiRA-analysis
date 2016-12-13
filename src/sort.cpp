@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
                     }
 
                     // attempt to unpack event
-                    if (Det.unpack(evtfile,runno))
+                    if (Det.unpack(evtfile))
                     {
                         physicsEventGood++;
                         Det.treeGrow();
