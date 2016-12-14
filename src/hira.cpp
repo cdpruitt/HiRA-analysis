@@ -169,7 +169,7 @@ bool hira::unpackCsi(ifstream& evtfile)
             continue;
         } 
         ///point = ADC.read(point);  // suck out the info in the qdc
-        for (int i=0;i<ADC.channelsHit.value;i++)
+        for (int i=0;i<(int)ADC.channelsHit.value;i++)
         {
             if (ADC.allChannelsData[i].underflow.value)
             {
@@ -824,64 +824,60 @@ bool hira::unpackCsi(ifstream& evtfile)
 //unpacking the XLM with ADC on the CHIP BOARDS (HINP 4)
 bool hira::unpackSi_HINP4(ifstream& evtfile)
 {
-    unsigned short marker;
-    readNextWord(evtfile,&marker);
+    vector<unsigned short> marker(1);
+    readWord(evtfile,marker);
 
     for(int iMB = 0;iMB<2;iMB++)
     {
-        unsigned short dummy;
-        readNextWord(evtfile,&dummy);
-        readNextWord(evtfile,&dummy);
+        vector<unsigned short> dummy(2);
+        readWord(evtfile,dummy);
 
-        if (marker != xmarker[iMB])
-        { cout << "Did not read the proper XLM marker. Was " << hex << marker << " expected " << xmarker[iMB] << dec <<endl;
+        if (marker[0] != xmarker[iMB])
+        { cout << "Did not read the proper XLM marker. Was " << hex << marker[0] << " expected " << xmarker[iMB] << dec <<endl;
             return false;
         }
 
-        unsigned int NstripsRead = 0;
+        vector<unsigned int> NstripsRead(1);
         unsigned short chipWords;
         int NWords;
 
-        readNextWord(evtfile,&NstripsRead);
+        readWord(evtfile,NstripsRead);
 
-        if(NstripsRead %4 !=0) 
+        if(NstripsRead[0] %4 !=0) 
         {
             return false;
         }
 
-        if (NstripsRead > 384)
+        if (NstripsRead[0] > 384)
         {
-            unsigned int dummy;
-            readNextWord(evtfile,&dummy);
-            readNextWord(evtfile,&dummy);
+            vector<unsigned int> dummy(2);
             // supposed to be 8 bytes? or 16?
 
             return false; // bad buffer
         }
 
-        char dummy2;
-        readNextWord(evtfile,&dummy); 
-        readNextWord(evtfile,&dummy2); 
+        vector<char> dummy2(5);
+        readWord(evtfile,dummy2); 
         // supposed to be 5 bytes? or 10?
 
-        NstripsRead /= 4;
+        NstripsRead[0] /= 4;
 
-        for (int istrip = 0;istrip <(int)NstripsRead;istrip++)
+        for (int istrip = 0;istrip <(int)NstripsRead[0];istrip++)
         {
-            unsigned short id;
-            readNextWord(evtfile,&id);
+            vector<unsigned short> id(1);
+            readWord(evtfile,id);
 
-            unsigned short chipNum = (id&0x1FE0)>>5;
-            unsigned short chanNum = id & 0x1F;
+            unsigned short chipNum = (id[0]&0x1FE0)>>5;
+            unsigned short chanNum = id[0] & 0x1F;
 
-            unsigned short uncalEnergy;
-            readNextWord(evtfile,&uncalEnergy);
+            vector<unsigned short> uncalEnergy(1);
+            readWord(evtfile,uncalEnergy);
 
-            unsigned short ilowenergy;
-            readNextWord(evtfile,&ilowenergy);
+            vector<unsigned short> ilowenergy(1);
+            readWord(evtfile,ilowenergy);
 
-            unsigned short uncalTime;
-            readNextWord(evtfile,&uncalTime);
+            vector<unsigned short> uncalTime(1);
+            readWord(evtfile,uncalTime);
 
             if (chipNum%2 == 0)
             {
@@ -932,28 +928,28 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
                 Histo->EFTSum[telescopeNumber]->Fill(chanNum,time);
 
                 //Front raw spectra
-                Histo->EfrontR[telescopeNumber][chanNum]->Fill(uncalEnergy); //high gain
-                Histo->EfrontLR[telescopeNumber][chanNum]->Fill(ilowenergy); //low gain
+                Histo->EfrontR[telescopeNumber][chanNum]->Fill(uncalEnergy[0]); //high gain
+                Histo->EfrontLR[telescopeNumber][chanNum]->Fill(ilowenergy[0]); //low gain
                 Histo->TfrontR[telescopeNumber][chanNum]->Fill(time); //time
-                Histo->EFSum[telescopeNumber]->Fill(chanNum,uncalEnergy);
+                Histo->EFSum[telescopeNumber]->Fill(chanNum,uncalEnergy[0]);
 
                 //Front calibrated spectra
                 Histo->EfrontC[telescopeNumber][chanNum]->Fill(energy); //high gain
                 Histo->EfrontLC[telescopeNumber][chanNum]->Fill(lowenergy); //low gain
                 Histo->EFCSum[telescopeNumber]->Fill(chanNum,energy);
 
-                if (uncalEnergy < 15000 && uncalEnergy > 50 && ilowenergy <15000)
+                if (uncalEnergy[0] < 15000 && uncalEnergy[0] > 50 && ilowenergy[0] <15000)
                 {
                     fsumN[telescopeNumber][chanNum]++;
-                    fsumx[telescopeNumber][chanNum] += (double)ilowenergy;
-                    fsumxx[telescopeNumber][chanNum] += pow((double)ilowenergy,2);
-                    fsumy[telescopeNumber][chanNum] += uncalEnergy;
-                    fsumyx[telescopeNumber][chanNum] += uncalEnergy*(double)ilowenergy;
+                    fsumx[telescopeNumber][chanNum] += (double)ilowenergy[0];
+                    fsumxx[telescopeNumber][chanNum] += pow((double)ilowenergy[0],2);
+                    fsumy[telescopeNumber][chanNum] += uncalEnergy[0];
+                    fsumyx[telescopeNumber][chanNum] += uncalEnergy[0]*(double)ilowenergy[0];
                 }
 
                 if(energy >0.75)
                 {
-                    Telescope[telescopeNumber]->Front.Add(chanNum,energy,ilowenergy,uncalEnergy,time);
+                    Telescope[telescopeNumber]->Front.Add(chanNum,energy,ilowenergy[0],uncalEnergy[0],time);
                 }
 
             }
@@ -973,10 +969,10 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
                 //	      Histo->SiFTime->Fill(time);
 
                 //Back raw spectra
-                Histo->EbackR[telescopeNumber][chanNum]->Fill(uncalEnergy); //high gain
-                Histo->EbackLR[telescopeNumber][chanNum]->Fill(ilowenergy); //low gain
+                Histo->EbackR[telescopeNumber][chanNum]->Fill(uncalEnergy[0]); //high gain
+                Histo->EbackLR[telescopeNumber][chanNum]->Fill(ilowenergy[0]); //low gain
                 Histo->TbackR[telescopeNumber][chanNum]->Fill(time); //time
-                Histo->EBSum[telescopeNumber]->Fill(chanNum,uncalEnergy);
+                Histo->EBSum[telescopeNumber]->Fill(chanNum,uncalEnergy[0]);
 
                 //Back calibrated spectra
                 Histo->EbackC[telescopeNumber][chanNum]->Fill(energy); //high gain
@@ -984,18 +980,18 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
                 Histo->EBCSum[telescopeNumber]->Fill(chanNum,energy);
 
 
-                if (uncalEnergy < 15000 && uncalEnergy > 50 && ilowenergy <15000)
+                if (uncalEnergy[0] < 15000 && uncalEnergy[0] > 50 && ilowenergy[0] <15000)
                 {
                     bsumN[telescopeNumber][chanNum]++;
-                    bsumx[telescopeNumber][chanNum] += (double)ilowenergy;
-                    bsumxx[telescopeNumber][chanNum] += pow((double)ilowenergy,2);
-                    bsumy[telescopeNumber][chanNum] += uncalEnergy;
-                    bsumyx[telescopeNumber][chanNum] += uncalEnergy*(double)ilowenergy;
+                    bsumx[telescopeNumber][chanNum] += (double)ilowenergy[0];
+                    bsumxx[telescopeNumber][chanNum] += pow((double)ilowenergy[0],2);
+                    bsumy[telescopeNumber][chanNum] += uncalEnergy[0];
+                    bsumyx[telescopeNumber][chanNum] += uncalEnergy[0]*(double)ilowenergy[0];
                 }
 
                 if(energy >0.75)
                 {
-                    Telescope[telescopeNumber]->Back.Add(chanNum,energy,ilowenergy,uncalEnergy,time);
+                    Telescope[telescopeNumber]->Back.Add(chanNum,energy,ilowenergy[0],uncalEnergy[0],time);
                 }
             }	  
         }

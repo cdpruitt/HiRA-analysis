@@ -2,10 +2,11 @@
 #define READ_DATA_H
 
 #include <fstream>
+#include <vector>
 
-bool readNextWord(std::ifstream& evtfile, char* variable);
-bool readNextWord(std::ifstream& evtfile, unsigned short* variable);
-bool readNextWord(std::ifstream& evtfile, unsigned int* variable);
-bool readNextWord(std::ifstream& evtfile, double* variable);
+bool readWord(std::ifstream& evtfile, std::vector<char> variable);
+bool readWord(std::ifstream& evtfile, std::vector<unsigned short> variable);
+bool readWord(std::ifstream& evtfile, std::vector<unsigned int> variable);
+bool readWord(std::ifstream& evtfile, std::vector<double> variable);
 
 #endif

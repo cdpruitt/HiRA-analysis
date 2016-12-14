@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     //histo_read * Histo_read = new histo_read();
     forest * Forest = new forest();
 
-    det Det(Histo_sort, Forest);
+    det Det(Histo_sort);
 
     for(int runNumber : runNumbers)
     {

@@ -8,12 +8,12 @@
 
 class Event
 {
-    protected:
-        class Quantity // a physical quantity that is part an event
-            // (e.g., time, charge, module address are all quantities)
+    public:
+        struct Quantity // the smallest granularity of event data
+            // (e.g., time, charge, module address are all Quantities)
         {
-            public:
-            Quantity(const std::string n,
+            Quantity(
+                    const std::string n,
                     unsigned const int bM,
                     unsigned const int bS)
                 : name(n), bitMask(bM), bitShift(bS) {}
@@ -35,12 +35,32 @@ class Event
             {
                 value = (word >> bitShift) & bitMask;
             }
-
-            bool check(unsigned int word) // test to see if value matches buffer
-            {
-                return (value == ((word >> bitShift) & bitMask));
-            }
         };
+
+        struct Section // a portion of an event (e.g., header, body, footer)
+        {
+            Section(Quantity ID, unsigned int s) : identifier(ID), size(s) {}
+
+            Quantity identifier; 
+            unsigned int size; // size of section, in words
+
+            bool checkID(unsigned int word) // test to see if a word has this
+                                            // Section's unique ID
+            {
+                return (identifier.value == ((word >> identifier.bitShift) & identifier.bitMask));
+            }
+
+            void extractData(unsigned int word);
+
+        };
+
+        /*class QuantityGroup // allows grouping of Quantities
+                            // (e.g., each channel of an event may have a group
+                            // of quantities associated with it, like time,
+                            // integrated charge, etc)
+        {
+            void read(unsigned int word) // read the quantity group from a buffer
+        }*/
 };
 
 #endif

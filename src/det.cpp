@@ -3,6 +3,9 @@
 
 #include <fstream>
 #include <iostream>
+#include <vector>
+
+vector<unsigned short> dummy(1);
 
 // Constructor
 det::det(histo_sort * Histo0)///, forest * Forest0)
@@ -38,10 +41,8 @@ det::~det()
 bool det::unpack(ifstream& evtfile)
 {
     Hira->reset();
-    unsigned short dummy;
-
-    readNextWord(evtfile,&dummy);
-    readNextWord(evtfile,&dummy);
+    readWord(evtfile,dummy);
+    readWord(evtfile,dummy);
 
     return Hira->unpack(evtfile);
 }
@@ -260,7 +261,7 @@ void det::treeGrow()
     ///Forest->tree->Fill();
 }
 
-void det::loadTree(Event *event)
+void det::loadTree(Event*) /// event)
 {
     int telescopeNumber = 0;
     int strip = 0;
@@ -285,5 +286,5 @@ void det::loadTree(Event *event)
         telescopeNumber = event->csiID[j]/CSIS_PER_TELESCOPE; //CSIS_PER_TELESCOPE CsIs
         strip = event->csiID[j]%CSIS_PER_TELESCOPE;
         Hira->Telescope[telescopeNumber]->Csi.Add(strip, event->csiE[j], event->csiER[j], event->csiT[j]);
-    }/*/
+    }**/
 }

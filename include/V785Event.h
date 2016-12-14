@@ -1,15 +1,11 @@
 /******************************************************************************
- * An ADCEvent represents an event from a CAEN V785 ADC module.
- *
- * The event structure for the CAEN V785 is as follows:
+ * Represents event structure from a CAEN V785 ADC module, which is as follows:
  *
  * ------------------------------------
  * Event header | uint32
  *      converted channels | bits 8-13
  *      crate              | bits 16-23
- *      indicator bit (0)  | bit 24
- *      indicator bit (1)  | bit 25
- *      indicator bit (0)  | bit 26
+ *      word indicator     | bits 24-26
  *      geographic address | bits 27-31
  * ------------------------------------
  * Event data   | uint32
@@ -17,9 +13,7 @@
  *      overflow bit       | bit 12
  *      underflow bit      | bit 13
  *      channel #          | bits 16-20
- *      indicator bit (0)  | bit 24
- *      indicator bit (0)  | bit 25
- *      indicator bit (0)  | bit 26
+ *      word indicator     | bits 24-26
  *      geographic address | bits 27-31
  * .
  * .
@@ -28,9 +22,7 @@
  * ------------------------------------
  * End of block | uint 32
  *      Event counter      | bits 0-23
- *      indicator bit (0)  | bit 24
- *      indicator bit (0)  | bit 25
- *      indicator bit (1)  | bit 26
+ *      word indicator     | bits 24-26
  *      geographic address | bits 27-31
  *
  *****************************************************************************/
@@ -42,11 +34,11 @@
 
 #include <vector>
 
-class ADCEvent : public Event
+class V785Event : public Event
 {
     public:
         /*********************************************************************
-        // Header data for an ADC event
+        // Header data
          *********************************************************************/
 
         // number of channels triggered on this event
@@ -62,7 +54,7 @@ class ADCEvent : public Event
         Quantity moduleAddress = {"address of module", 0x1F, 27};
 
         /*********************************************************************
-        // Body data for an ADC event
+        // Body data
          *********************************************************************/
 
         // unique indicator for body words

@@ -1,4 +1,4 @@
-#include "../include/ADCEvent.h"
+#include "../include/V785Event.h"
 #include "../include/readData.h"
 
 #include <iostream>
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-bool ADCEvent::readEvent(ifstream& evtfile)
+bool V785Event::readEvent(ifstream& evtfile)
 {
     // read header
     unsigned int word;

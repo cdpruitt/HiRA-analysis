@@ -6,7 +6,7 @@
 #include "histo_sort.h"
 #include "histo_read.h"
 #include "telescope.h"
-#include "ADCEvent.h"
+#include "V785Event.h"
 #include "pixels.h"
 #include "TDC1190.h"
 #include "geometry.h"
@@ -71,7 +71,7 @@ class hira
 
         histo_sort * Histo;
         histo_read * Histo_read;
-        ADCEvent ADC;
+        V785Event ADC;
         TDC1190 *TDC;
 
         dataE DataE[TOTAL_CSIS];
