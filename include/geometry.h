@@ -6,5 +6,6 @@ const int NUMBER_OF_STRIPS = 32;
 const int CSIS_PER_TELESCOPE = 4;
 
 const int TOTAL_CSIS = NUMBER_OF_TELESCOPES*CSIS_PER_TELESCOPE;
+const int EXTRA_CSIS = 3;
 
 #endif

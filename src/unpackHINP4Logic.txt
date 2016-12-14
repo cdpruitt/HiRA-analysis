@@ -1,0 +1,47 @@
+read xlm marker (indicating MB ID)
+
+for each motherboard:
+    read short dummy
+    read short dummy
+
+    if the xlm marker doesn't match MB xlm markers
+        unpack returns false
+
+    read int number of strips read
+    (supposed to be %4 = 0, else unpack returns false)
+
+    read short chipWords (maybe this happens?)
+    read int numberOfWords (maybe this happens?)
+
+    if (number of strips is too many || not divisible by 4)
+        unpack returns false (bad buffer)
+
+    read (5 byte) dummy (maybe this happens? wtf is this?)
+
+    for every 4th strip
+        read short id (chip number = id[0]&0x1FE0)>>5; chanNum = id[0] & 0x1F)
+        read short uncalEnergy
+        read short unCalEnergyLowGain
+        read short uncalTime
+    
+        remap chanNum= (NUMBER_OF_STRIPS-2) - 2*chanNum + chipNum%2
+        remap chipNum=chipNum/2 + chipNum%2
+    
+        if this chipboard is a front chipboard
+            chanNum = (NUMBER_OF_STRIPS-1) - chanNum
+    
+        error checking: unpack returns false if chanNum or chipNum too big
+    
+        if this is a front chipboard
+            calculate calibrated energies
+            fill the front histograms (raw and calibrated)
+    
+            if within uncalibrated energy gates
+                add event data to telescope uncalibrated event data structure
+    
+            if within calibrated energy gate
+                add event data to telescope calibrated event data structure
+    
+        else do the same damn thing for the backs!
+
+unpack returns true

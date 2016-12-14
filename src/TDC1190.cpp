@@ -132,8 +132,8 @@ bool TDC1190::readTDCmeasurement(ifstream& evtfile)
         dataOut[Ndata].channel = channel;
         dataOut[Ndata].order = order[channel];
         Ndata++;
-
     }
+
     order[channel]++;
     return true;
 }

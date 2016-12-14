@@ -8,29 +8,16 @@
 vector<unsigned short> dummy(1);
 
 // Constructor
-det::det(histo_sort * Histo0)///, forest * Forest0)
-{
-    type = 0;
-    Histo_sort = Histo0;
-    ///Forest = Forest0;
-    ran = new TRandom;
-    Hira = new hira(ran,Histo_sort);
-}
-
 det::det(histo_read * Histo1)
 {
-    type = 1;
     Histo_read = Histo1;
-    ran = new TRandom;
-    Hira = new hira(ran,Histo_read);
+    Hira = new hira(Histo_read);
 }
 
 // Destructor
 det::~det()
 {
     delete Hira;
-    delete ran;
-    ///if (type == 0)delete Forest;
     cout << "number of good tree events " << ngood << endl;
     cout << "det removed" << endl;
 }

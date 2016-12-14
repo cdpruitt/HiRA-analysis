@@ -1,4 +1,5 @@
 #include <string>
+#include "geometry.h"
 
 using namespace std;
 
@@ -15,8 +16,6 @@ struct order
   float time;
 };
 
-int const nnn=32;
-
 /**
  * !\brief Energy ordered list
  *
@@ -29,7 +28,7 @@ class elist
 {
  public:
   int Nstore = 0; //number stored in list
-  order Order[nnn];
+  order Order[NUMBER_OF_STRIPS];
   int mult;
   void Add(int,int,float,float);
   void Add(int,int,float,float,float);

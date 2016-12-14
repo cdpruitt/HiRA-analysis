@@ -27,13 +27,13 @@ struct dataT
     int id;
 };
 
-struct mmap
+struct telescopeIsFront
 {
-    bool front;
     int telescopeNumber;
+    bool isFrontCB;
 };
 
-struct cmap
+struct telescopeCsIMap
 {
     int telescopeNumber;
     int CsINumber;
@@ -42,11 +42,9 @@ struct cmap
 class hira
 {
     public:
-        hira(TRandom* ran, histo_sort * Histo0);
-        hira(TRandom* ran, histo_read * Histo1);
+        hira(histo_read * Histo1);
         ~hira();
 
-        int type;
         void init();
         bool unpack(ifstream& evtfile);
         bool unpackSi_sis(ifstream& evtfile);
@@ -57,20 +55,17 @@ class hira
         telescope **Telescope;
         void reset();
 
-        int Np;
-        int N6;
-
     private:
         TRandom * ran;
-        unsigned short xmarker[3];
         unsigned short chanXLM[3][400];
         unsigned short nXLM[3];
 
-        mmap Map[3][15];
-        cmap CsIMap[TOTAL_CSIS];
+        telescopeIsFront Map[3][15];
+        telescopeCsIMap CsIMap[TOTAL_CSIS];
 
         histo_sort * Histo;
         histo_read * Histo_read;
+
         V785Event ADC;
         TDC1190 *TDC;
 
@@ -91,7 +86,6 @@ class hira
 
         int NE;
         int NT;
-        int CsIM;
 
         int BlockerESum;
         bool haveBlocker;

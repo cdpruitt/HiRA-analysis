@@ -1,0 +1,24 @@
+hira::hira
+    initialize histo filling class
+    initialize TDC
+
+    map telescope number to MB and chipboard numbers
+    map telescope number to CsI number and 'channel' (whatever that is) 
+    read in calibrations:
+        for each strip (front and back) on each telescope:
+        get time and energy calibrations (each a slope and an intercept)
+
+    initialize telescopes
+    set telescope Csi-to-strip correspondence    
+
+hira::unpack
+    unpack silicons (HINP4) and unpack CsIs
+
+hira::unpack CsIs
+    read ADC and TDC data from input stream, and store in telescopes
+
+hira::unpack silicons (HINP4)
+
+hira::~hira
+   compute and output low/hi gain correlations (slopes and intercepts) 
+   delete telescopes

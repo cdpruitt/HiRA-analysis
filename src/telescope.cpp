@@ -2,11 +2,11 @@
 
 bool const telescope::relativity=1;
 
-telescope::telescope(TRandom * ran0, int id0, histo_read * Histo1)
+telescope::telescope(int id0, histo_read * Histo1)
 {
     id = id0;
     Histo = Histo1;
-    ran = ran0;
+    ran = new TRandom();
 
     ostringstream outstring;
     for (int icsi=0;icsi<4;icsi++)
@@ -109,11 +109,8 @@ telescope::telescope(TRandom * ran0, int id0, histo_read * Histo1)
     name = "cal/fb.cal";
     calFB =new calibrate(1,14,name,2);
     */
-
-
-
-
 }
+
 //************************************************
 telescope::~telescope()
 {
@@ -139,7 +136,6 @@ void telescope::analyze(int event)
     //if(Front.Nstore != 1) return;
     //if(Back.Nstore != 1) return;
 
-
     //  //get rid of xtalk between neighboring strips in Front
     //  if (Front.Nstore > 1)
     //    {
@@ -148,9 +144,6 @@ void telescope::analyze(int event)
     //	  if (Front.Order[0].energy > 100. && Front.Order[1].energy > Front.Order[0].energy/20.) return; 
     //	}
     //  }
-
-
-
 
     // //Getting rid of the xtalk for front and back for large particles
     // if(id ==6 || id==7)
@@ -245,7 +238,7 @@ void telescope::analyze(int event)
 
     for(int i =0;i<mult;i++)
     {
-        float accept =0.2;
+        float accept = 0.2;
         float fdum = Front.Order[i].energy;
         float bdum = Back.Order[i].energy;
         if(fdum <10.) accept =1./fdum;
@@ -266,19 +259,13 @@ void telescope::analyze(int event)
     yhit = 85.*sin(theta)*sin(phi);
 
     CsIhit = Csi.Order[0].strip + id*4;
-    if(id ==6 )
-    {
-        //      cout << CsIhit << " "<< Csi.Order[0].strip << endl;
-    }
+
     bool matched =0;
     if(Csi.Nstore ==1)
     {
-
         int icsi = Csi.Order[0].strip;
         int ifront = Front.Order[0].strip;
         int iback = Back.Order[0].strip;
-
-
 
         if (ifront >= FrontLow[icsi] &&
                 ifront <= FrontHigh[icsi] &&
@@ -289,15 +276,15 @@ void telescope::analyze(int event)
         }	
         if(!matched)return;
 
-
         if(icsi == 0)
+        {
             Histo->HitMap->Fill(xhit,yhit);
+        }
+
         CsIenergy = Csi.Order[0].energyR;
-        //  cout << "E from ADC " << CsIenergy << endl;
 
         SuncalEnergy = fenergy;
 
-        // cout << CsIenergy << " vs " << SuncalEnergy << endl;
         Histo->dEE[CsIhit]->Fill(CsIenergy,SuncalEnergy);
 
         float energy = Csi.Order[0].energy;
@@ -467,7 +454,6 @@ void telescope::analyze(int event)
             Solution[Nsolution].theta = theta;
             Solution[Nsolution].phi = phi;
             Nsolution=1;
-
         }
     */
     }
@@ -482,8 +468,8 @@ void telescope::analyze(int event)
     //Addfake3();
     //Addfake4();
     getMomentum(); //Adds energytotal and momentum to Solutions
-
 }
+
 //*******************************************************
 void telescope::reset()
 {
@@ -520,9 +506,6 @@ void telescope::reset()
     Front.reset();
     Back.reset();
     Csi.reset();
-
-
-
 }
 
 //*************************************************************
@@ -531,10 +514,8 @@ int telescope::multiHitCsi()
     // find number of soultions ,i.e. back and front pairs of strips 
     // with the same energy 
 
-
     int isol = multiHit();
     if (isol <=0) return 0;
-
 
     //now assign each of these solutions a Csi detector location 
     int mult[4]={0};  //array for multipility of Si solution for each Csi
@@ -558,8 +539,6 @@ int telescope::multiHitCsi()
         }
     }
 
-
-
     //make array of detect csi energies
     float energy[4]={-1.};
     float energyR[4]={-1};
@@ -568,9 +547,6 @@ int telescope::multiHitCsi()
         energy[Csi.Order[i].strip] = Csi.Order[i].energy;
         energyR[Csi.Order[i].strip] = Csi.Order[i].energyR;
     }
-
-
-
 
     //loop over csi location
     for (int icsi = 0;icsi<4;icsi++)
@@ -625,8 +601,6 @@ int telescope::multiHitCsi()
             /*
             if(Z >0 && A>0)
             {
-
-
                 if(Z ==1)
                 {
                     if(A ==2)
@@ -774,6 +748,7 @@ int telescope::multiHitCsi()
 
     return 1;
 }
+
 //****************************************************
 //recursive subroutine  used for multihit subroutine
 void telescope::loop(int depth)
@@ -904,8 +879,8 @@ void telescope::load(int F0low, int F1low,int F2low, int F3low,
     BackHigh[1] = B1hi;
     BackHigh[2] = B2hi;
     BackHigh[3] = B3hi;
-
 }
+
 //***************************************************************
 void telescope::Addfake()
 {

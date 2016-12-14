@@ -8,4 +8,8 @@ const bool HAS_TDC_ERROR = true;
 
 const int NUMBER_OF_TDCS = 4;
 
+const int RF_SCINTILLATOR_CHANNEL = 65;
+const int A1900_CHANNEL = 66;
+const int RF_CYCLOTRON_CHANNEL = 67;
+
 #endif

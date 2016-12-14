@@ -17,10 +17,10 @@ void elist::Add(int StripNum, int underOver, float energy,  float time)
       if (energy > Order[i].energy)break;
       i++;
     }
-  if (i == nnn) return; // not enougth room in list 
+  if (i == NUMBER_OF_STRIPS) return; // not enougth room in list 
 
   //new list length
-  int N = min(nnn,Nstore+1);
+  int N = min(NUMBER_OF_STRIPS,Nstore+1);
 
   // move those in energy below the new value down the list 
   for (int j=N-1;j>i;j--) Order[j] = Order[j-1];
@@ -59,10 +59,10 @@ void elist::Add(int StripNum, float energy,float energyRlow, float energyR,float
 	}
       i++;
     }
-  if (i == nnn) return; // not enougth room in list 
+  if (i == NUMBER_OF_STRIPS) return; // not enougth room in list 
 
   //new list length
-  int N = min(nnn,Nstore+1);
+  int N = min(NUMBER_OF_STRIPS,Nstore+1);
 
   // move those in energy below the new value down the list 
   for (int j=N-1;j>i;j--) Order[j] = Order[j-1];
@@ -100,7 +100,7 @@ int elist::Reduce(char*face)
     {
      int xtalk = 0;
      if (Nstore <= 1) return Nstore;
-     if (Nstore > nnn) 
+     if (Nstore > NUMBER_OF_STRIPS) 
        {
 	 cout << "problem in Reduce" << endl;
          return 0;

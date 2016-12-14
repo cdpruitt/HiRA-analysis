@@ -1,0 +1,49 @@
+for each ADC
+    read long f (to check for some sort of failure mode)
+    if f == 0xFFFF
+        some kind of failure mode...
+        continue to next ADC
+
+    read ADC event data
+    for each ADC channel triggered:
+        if channel overflow or underflow
+            continue to next channel
+        store ID for this channel
+        store uncalibrated energy for this channel
+
+        if channel ID < total number of CsIs
+            use channel ID and CsI Mapping to get CsI ID and telescope #
+            store CsI ID, uncalibrated and calibrated energies
+            fill histos with CsI ID, uncalibrated and calibrated energies
+            if uncalibrated energy within gate
+                increment CsI multiplicity
+                add CsI event data to telescope
+
+        if CsI ID > TOTAL_CSIS and also < TOTAL_CSIS+EXTRA_CSIS
+            fill histos with extra CsI uncalibrated energies
+    
+    fill CsI Multiplicity histo
+    read short f twice (check for some sort of failure mode)
+    if f == 0xFFFF
+        some kind of failure mode...
+
+for each TDC
+    read long f (to check for some sort of failure mode)
+    if f == 0xFFFF
+        some kind of failure mode...
+        continue to next ADC
+
+    read TDC event data
+    for each TDC measurement (i.e., one per enabled TDC submodule)
+        store channelID
+        store uncalibratedTime
+        fill histo with uncalibrated time
+        store additional time channels (e.g., RF Scintillator, A1900, Cyclotron RF)
+
+    read short f twice (check for some sort of failure mode)
+    if f != 0xFFFF (maybe?)
+        some kind of failure mode...
+
+mate ADC and TDC data for each channel
+store joint ADC and TDC data in the appropriate telescopes
+

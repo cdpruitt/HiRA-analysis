@@ -37,7 +37,6 @@ class det
  public:
   det(histo_sort * Histo_sort);///, forest * Forest);
   det(histo_read * Histo_read);
-  int type;
   ~det();
   bool unpack(ifstream& evtfile);
   hira *Hira;

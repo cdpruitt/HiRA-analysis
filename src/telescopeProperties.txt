@@ -1,0 +1,17 @@
+isFrontCB
+CsINumber
+
+front strip energy calibration, hi/lo gains (cal/front.cal and cal/HL_Front.cal)
+back strip energy calibration, hi/lo gains (cal/back.cal and cal/HL_Back.cal)
+
+front strip time calibration, hi/lo gains (cal/timePulser_front.cal)
+back strip time calibration, hi/lo gains (cal/timePulser_back.cal)
+
+mapping strip range to CsI range (Telescope->load)
+
+fsumN (number of hits in telescope # and channel #)
+fsumx; fsumxx (low-gain energy value in telescope # and channel #; fsumx^2)
+fsumy; fsumyx (hi-gain energy value in telescope # and channel #; fsumx*fsumy)
+
+Front 'elist' (one event's worth of data for a single strip)
+Back 'elist'  (one event's worth of data for a single strip)

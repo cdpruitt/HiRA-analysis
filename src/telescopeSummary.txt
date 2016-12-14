@@ -1,0 +1,52 @@
+telescope::telescope
+    initialize telescope id, histogram, random number generator 
+    read PID parameters in for this telescope (one per CsI)
+    read in energy loss information (dE/dx) for each nuclide of interest
+    read in CsI calibrations for each nuclide of interest
+    read in some calibration for each all telescopes
+
+telescope::~telescope
+    delete loss information
+
+telescope::analyze
+    deal with crosstalk of neighboring strips on front
+    deal with crosstalk of front and back for large particles
+    unknown horse shit (something to do with trigger multiplicity and energies)
+    calculate theta and phi of... something? maybe of the event location?
+    if only 1 CsI and a front/back have been triggered
+        fill a hitmap with this event
+        fill a dEE histo with this event
+        figure out the event's Z and A
+        if we recover a good Z and A
+            fill the appropriate histogram
+            store a bunch of data as Solution
+    if multiple CsI and fronts/backs have been triggered
+        run multiHitCsI
+
+    add total energy and momentum to the Solution
+
+telescope::reset
+    reset all of telescope's arrays and ints
+
+telescope::multiHitCsI
+    run multiHit to find solutions for multiple hits on CsIs and silicons
+    figure out the events' Z and A
+    if we recover a good Z and A
+        fill the appropriate histogram
+        store a bunch of data as Solutions
+
+telescope::loop
+    some kind of recursive function used in multiHit/multiHitCsI
+
+telescope::multiHit
+    finds solutions for multiple hits on CsIs and silicons using loop
+
+telescope::load
+    assign some strip mapping to the telescope (?)
+
+telescope::Addfake (and Addfake 2, 3, 4)
+    add a fake detector onto this telescope to account for incomplete charge
+    collection in telescopes
+
+telescope::getMomentum
+   calculate particle moment of an event based on Solution data 

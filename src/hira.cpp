@@ -1,35 +1,20 @@
 #include "../include/hira.h"
 #include "../include/readData.h"
+#include "../include/unpackerConstants.h"
+#include "../include/V785Configuration.h"
 
-hira::hira(TRandom * ran0, histo_sort * Histo0)
+hira::hira(histo_read *Histo1)
 {
-    type = 0;
-    Histo = Histo0;
-    ran = ran0;
-    init();
-}
-
-hira::hira(TRandom * ran0, histo_read * Histo1)
-{
-    type = 1;
     Histo_read = Histo1;
-    ran = ran0;
-    init();
-}
 
-void hira::init()
-{
-    xmarker[0]=0x1ff3;
-    xmarker[1]=0x2ff3;
-
-    TDC =  new TDC1190(1,64,128);
+    TDC =  new TDC1190(1,64,128); // depth, referenceChannel, Nchannels
 
     //make map of chips
-    ifstream ifile("chipmap.dat");
+    ifstream ifile("chipmap.dat"); // map detector # to MB # and chipboard #
     if (!ifile.is_open())
     {
         cout << "chip map not found" << endl;
-        abort();
+        exit(1);
     }
 
     string name;
@@ -42,17 +27,13 @@ void hira::init()
         if (ifile.bad()) break;
 
         iMB -= 1;
-        Map[iMB][cbf].front = true;
+        Map[iMB][cbf].isFrontCB = true;
         Map[iMB][cbf].telescopeNumber = i1;
 
-        Map[iMB][cbb].front = false;
+        Map[iMB][cbb].isFrontCB = false;
         Map[iMB][cbb].telescopeNumber = i1;
-
-
-
     }
     ifile.close();
-    ifile.clear();
 
     ifstream csimap("csimap.dat");
     if(!csimap.is_open())
@@ -74,11 +55,11 @@ void hira::init()
         CsIMap[icsi].CsINumber = ich;
     }
     csimap.close();
-    csimap.clear();
 
     //read in calibrations
-    ///int Ntele = NUMBER_OF_TELESCOPES;
-    ///int Nstrip = NUMBER_OF_STRIPS;
+
+    int Ntele = NUMBER_OF_TELESCOPES;
+    int Nstrip = NUMBER_OF_STRIPS;
     /*name = "cal/front.cal";
       calFront = new calibrate(Ntele,Nstrip,name,1);
       name = "cal/back.cal";
@@ -88,7 +69,6 @@ void hira::init()
       calLFront = new calibrate(Ntele,Nstrip,name,1);
       name = "cal/HL_Back.cal";
       calLBack = new calibrate(Ntele,Nstrip,name,1);
-
 
       name = "cal/Proton_New_ang.cal";
       calCsi = new calibrate(1,TOTAL_CSIS,name,1);
@@ -109,23 +89,17 @@ void hira::init()
     Telescope = new telescope*[NUMBER_OF_TELESCOPES];
     for (int i=0;i<NUMBER_OF_TELESCOPES;i++)
     {
-        Telescope[i] = new telescope(ran,i,Histo_read);
+        Telescope[i] = new telescope(i,Histo_read);
 
         Telescope[i]->load(0, 0, 15,15,
                 16,16,31,31,
                 0, 15,15,0,
                 16,31,31,16);
-
-        /*
-           Telescope[i]->load(15, 15,0,0,
-           31,31,16,16,
-           0, 15,15,0,
-           16,31,31,16);
-           */
     }
 
     //high low correlations zero arrays
     for (int i=0;i<NUMBER_OF_TELESCOPES;i++)
+    {
         for (int j=0;j<NUMBER_OF_STRIPS;j++)
         {
             fsumN[i][j] = 0.;
@@ -140,6 +114,7 @@ void hira::init()
             bsumyx[i][j] = 0.;
             bsumy[i][j] = 0.;
         }
+    }
 }
 
 //*************************************************************
@@ -151,15 +126,12 @@ bool hira::unpack(ifstream& evtfile)
 //*************************************************************
 bool hira::unpackCsi(ifstream& evtfile)
 {
-    NE = 0;
-    CsIM = 0;
-
     BlockerESum = 0;
     haveBlocker = false;
 
     unsigned long* point;
 
-    for (int iadc = 0;iadc<2;iadc++)
+    for (int iadc = 0;iadc<NUMBER_OF_ADCS;iadc++)
     {
         //check for ffff's
         unsigned long f = *point;
@@ -168,19 +140,18 @@ bool hira::unpackCsi(ifstream& evtfile)
             point += 2;
             continue;
         } 
+
+        CsIMultiplicity = 0;
+
         ///point = ADC.read(point);  // suck out the info in the qdc
         for (int i=0;i<(int)ADC.channelsHit.value;i++)
         {
-            if (ADC.allChannelsData[i].underflow.value)
+            if (ADC.allChannelsData[i].underflow.value || ADC.allChannelsData[i].overflow.value)
             {
                 continue;
             }
 
-            if (ADC.allChannelsData[i].overflow.value)
-            {
-                continue;
-            }
-            int id = ADC.allChannelsData[i].channelID.value + 32*iadc;
+            int id = ADC.allChannelsData[i].channelID.value + CHANNELS_PER_ADC*iadc;
             int uncalEnergy = ADC.allChannelsData[i].ADCValue.value;
 
             if(id < TOTAL_CSIS)
@@ -190,27 +161,22 @@ bool hira::unpackCsi(ifstream& evtfile)
 
                 float energy = 0; //= calCsi->getEnergy(0,CsINumber,uncalEnergy+ran->Rndm());
 
-                DataE[NE].id = CsINumber;
-                DataE[NE].uncalEnergy = uncalEnergy;
-                DataE[NE].energy = energy;
-                Histo->ECsI[CsINumber]->Fill(uncalEnergy);
-                Histo->ECsISum->Fill(CsINumber,uncalEnergy);
-                Histo->ECsICSum->Fill(CsINumber,energy);
+                DataE[i].id = CsINumber;
+                DataE[i].uncalEnergy = uncalEnergy;
+                DataE[i].energy = energy;
+                ///Histo->ECsI[CsINumber]->Fill(uncalEnergy);
+                ///Histo->ECsISum->Fill(CsINumber,uncalEnergy);
+                ///Histo->ECsICSum->Fill(CsINumber,energy);
 
-
-                int icsi = DataE[NE].id%4; 
+                int icsi = DataE[i].id%4; 
                 if (uncalEnergy > 50)
                 {
-                    CsIM++;
-                    Telescope[telescopeNumber]->Csi.Add(icsi,energy,0.,DataE[NE].uncalEnergy,0.);
+                    CsIMultiplicity++;
+                    Telescope[telescopeNumber]->Csi.Add(icsi,energy,0.,DataE[i].uncalEnergy,0.);
                 }
-
-                //cout << Telescope[telescopeNumber]->Csi.Order[0].strip;
-                //cout << " " << Telescope[telescopeNumber]->Csi.Order[0].energy << endl;
-
-                NE++;
             }
-            if (id >= TOTAL_CSIS && id<= 59)
+
+            if (id >= TOTAL_CSIS && id<= TOTAL_CSIS+EXTRA_CSIS)
             {
                 haveBlocker = true;
                 if(id == TOTAL_CSIS)
@@ -228,7 +194,7 @@ bool hira::unpackCsi(ifstream& evtfile)
             Histo->Blocker_ESum->Fill(BlockerESum);
         }
 
-        Histo->CsIMult->Fill(CsIM);
+        Histo->CsIMult->Fill(CsIMultiplicity);
 
         //check for ffff's
         unsigned short f1 = *point;
@@ -276,7 +242,6 @@ bool hira::unpackCsi(ifstream& evtfile)
         //      if(TDC->notTDCerror){ cout << eventNum << endl; return false;}
         for (int i=0;i<TDC->Ndata;i++)
         {
-
             int id = TDC->dataOut[i].channel;
 
             int uncalTime = TDC->dataOut[i].time;
@@ -287,18 +252,20 @@ bool hira::unpackCsi(ifstream& evtfile)
                 Histo->TCsI[id]->Fill(uncalTime/10.);
                 NT++;
             }
-            else if (id == 65)
+
+            else if (id == RF_SCINTILLATOR_CHANNEL)
             {
                 timeRFScintillator = uncalTime;
                 Histo->timeRFScintillator->Fill(uncalTime/10.);
             }
-            else if (id == 66)
+
+            else if (id == A1900_CHANNEL)
             {
                 timeA1900 = uncalTime;
                 Histo->timeA1900->Fill(uncalTime/10.);
                 if (haveBlocker)Histo->Blocker_ETOF->Fill(BlockerESum,uncalTime);
             }
-            else if (id == 67)
+            else if (id == RF_CYCLOTRON_CHANNEL)
             {
                 timeRFCyclotron = uncalTime;
                 Histo->timeRFCyclotron->Fill(uncalTime/10.);
@@ -306,16 +273,13 @@ bool hira::unpackCsi(ifstream& evtfile)
 
         }
 
-
         //check for ffff's
         unsigned short f1 = *point;
         point++;
         unsigned short f2 = *point;
         point++;
-        if(f1 != 0xffff && f2 != 0xffff) return false;
+        return (f1!=0xffff || f2!=0xFFFF)
     }
-
-
 
     // match up energies to times
     for (int ie=0;ie<NE;ie++)
@@ -338,6 +302,7 @@ bool hira::unpackCsi(ifstream& evtfile)
 
     return true;
 }
+
 // //***************************************************************
 // //unpacking the XLM with internal ADC's
 // bool hira::unpackSi_adc(unsigned short *&point)
@@ -363,8 +328,8 @@ bool hira::unpackCsi(ifstream& evtfile)
 //       point = nextMB;
 //       cout << iMB << " " << hex <<*point;
 //       marker = *point++;
-//       //if(marker !=xmarker[iMB])point++;
-//       if (marker != xmarker[iMB]) return false;
+//       //if(marker !=XLM_MARKER[iMB])point++;
+//       if (marker != XLM_MARKER[iMB]) return false;
 
 //       int NstripsRead = 0;
 //       unsigned short chipWords = *point;
@@ -389,7 +354,7 @@ bool hira::unpackCsi(ifstream& evtfile)
 //           unsigned short chipNum = (id&0x1FE0)>>5;
 //           unsigned short chanNum = id & 0x1F;
 //           unsigned short uncalEnergy = *point++;
-// 	  unsigned short ilowenergy = *point++;
+// 	  unsigned short unCalEnergyLowGain = *point++;
 //           unsigned short uncalTime =  *point++;
 
 
@@ -614,10 +579,10 @@ bool hira::unpackCsi(ifstream& evtfile)
 //     {
 //       marker = *point++;
 //       unsigned short *epoint = point;
-//       if (marker == xmarker[iXLM]) //XLM1
+//       if (marker == XLM_MARKER[iXLM]) //XLM1
 //         {
 
-// 	  // in princle words and words2 are both part of 
+// 	  // in principle words and words2 are both part of 
 // 	  // a int32 parameter, but in practicable terms
 // 	  // words2 should always be zero
 //           unsigned short words = *epoint++;   // 
@@ -827,20 +792,17 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
     vector<unsigned short> marker(1);
     readWord(evtfile,marker);
 
-    for(int iMB = 0;iMB<2;iMB++)
+    for(unsigned int iMB = 0;iMB<NUMBER_OF_MBS;iMB++)
     {
         vector<unsigned short> dummy(2);
         readWord(evtfile,dummy);
 
-        if (marker[0] != xmarker[iMB])
-        { cout << "Did not read the proper XLM marker. Was " << hex << marker[0] << " expected " << xmarker[iMB] << dec <<endl;
+        if (marker[0] != XLM_MARKER[iMB]) // XLM_MARKER
+        { cout << "Did not read the proper XLM marker. Was " << hex << marker[0] << " expected " << XLM_MARKER[iMB] << dec <<endl;
             return false;
         }
 
         vector<unsigned int> NstripsRead(1);
-        unsigned short chipWords;
-        int NWords;
-
         readWord(evtfile,NstripsRead);
 
         if(NstripsRead[0] %4 !=0) 
@@ -848,7 +810,7 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
             return false;
         }
 
-        if (NstripsRead[0] > 384)
+        if (NstripsRead[0] > STRIPS_PER_MB)
         {
             vector<unsigned int> dummy(2);
             // supposed to be 8 bytes? or 16?
@@ -860,9 +822,7 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
         readWord(evtfile,dummy2); 
         // supposed to be 5 bytes? or 10?
 
-        NstripsRead[0] /= 4;
-
-        for (int istrip = 0;istrip <(int)NstripsRead[0];istrip++)
+        for (int istrip = 0;istrip <(int)NstripsRead[0]/4;istrip++)
         {
             vector<unsigned short> id(1);
             readWord(evtfile,id);
@@ -873,35 +833,26 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
             vector<unsigned short> uncalEnergy(1);
             readWord(evtfile,uncalEnergy);
 
-            vector<unsigned short> ilowenergy(1);
-            readWord(evtfile,ilowenergy);
+            vector<unsigned short> unCalEnergyLowGain(1);
+            readWord(evtfile,unCalEnergyLowGain);
 
             vector<unsigned short> uncalTime(1);
             readWord(evtfile,uncalTime);
 
-            if (chipNum%2 == 0)
-            {
-                chanNum = 31- 2*chanNum-1;
-                chipNum /= 2;
-            }
+            chanNum = (NUMBER_OF_STRIPS-2)-2*chanNum + chipNum%2;
+            chipNum = chipNum/2 + chipNum%2;
 
-            else
-            {
-                chipNum = chipNum/2 + 1;
-                chanNum = 31 - 2*chanNum;
-            }
-
-            bool bfront = Map[iMB][chipNum].front;
+            bool bfront = Map[iMB][chipNum].isFrontCB;
             int telescopeNumber = Map[iMB][chipNum].telescopeNumber;
 
-            if (bfront) chanNum  = 31 - chanNum;
+            if (bfront) chanNum  = (NUMBER_OF_STRIPS-1) - chanNum;
 
             if(telescopeNumber < 0)
             {
                 return false;
             }
 
-            if (chanNum > 31)
+            if (chanNum > NUMBER_OF_STRIPS-1)
             {
                 cout << "chanNum too big" << endl;
                 return false;
@@ -917,7 +868,7 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
             if (bfront)
             {
                 float energy; // = calFront->getEnergy(telescopeNumber,chanNum,uncalEnergy+ran->Rndm());
-                float lowenergy; // = calLFront->getEnergy(telescopeNumber,chanNum,ilowenergy+ran->Rndm());
+                float lowenergy; // = calLFront->getEnergy(telescopeNumber,chanNum,unCalEnergyLowGain+ran->Rndm());
                 //lowenergy = calFront->getEnergy(telescopeNumber,chanNum,lowenergy);
                 if(lowenergy > 70. && energy > 20.) //cut off for switching high to low gain energy
                 {
@@ -929,7 +880,7 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
 
                 //Front raw spectra
                 Histo->EfrontR[telescopeNumber][chanNum]->Fill(uncalEnergy[0]); //high gain
-                Histo->EfrontLR[telescopeNumber][chanNum]->Fill(ilowenergy[0]); //low gain
+                Histo->EfrontLR[telescopeNumber][chanNum]->Fill(unCalEnergyLowGain[0]); //low gain
                 Histo->TfrontR[telescopeNumber][chanNum]->Fill(time); //time
                 Histo->EFSum[telescopeNumber]->Fill(chanNum,uncalEnergy[0]);
 
@@ -938,28 +889,26 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
                 Histo->EfrontLC[telescopeNumber][chanNum]->Fill(lowenergy); //low gain
                 Histo->EFCSum[telescopeNumber]->Fill(chanNum,energy);
 
-                if (uncalEnergy[0] < 15000 && uncalEnergy[0] > 50 && ilowenergy[0] <15000)
+                if (uncalEnergy[0] < 15000 && uncalEnergy[0] > 50 && unCalEnergyLowGain[0] <15000)
                 {
                     fsumN[telescopeNumber][chanNum]++;
-                    fsumx[telescopeNumber][chanNum] += (double)ilowenergy[0];
-                    fsumxx[telescopeNumber][chanNum] += pow((double)ilowenergy[0],2);
+                    fsumx[telescopeNumber][chanNum] += (double)unCalEnergyLowGain[0];
+                    fsumxx[telescopeNumber][chanNum] += pow((double)unCalEnergyLowGain[0],2);
                     fsumy[telescopeNumber][chanNum] += uncalEnergy[0];
-                    fsumyx[telescopeNumber][chanNum] += uncalEnergy[0]*(double)ilowenergy[0];
+                    fsumyx[telescopeNumber][chanNum] += uncalEnergy[0]*(double)unCalEnergyLowGain[0];
                 }
 
-                if(energy >0.75)
+                if(energy > 0.75)
                 {
-                    Telescope[telescopeNumber]->Front.Add(chanNum,energy,ilowenergy[0],uncalEnergy[0],time);
+                    Telescope[telescopeNumber]->Front.Add(chanNum,energy,unCalEnergyLowGain[0],uncalEnergy[0],time);
                 }
-
             }
 
             //filling the back histograms and calibrating
             if (!bfront)
             {
-
                 float energy;// = calBack->getEnergy(telescopeNumber,chanNum,uncalEnergy+ran->Rndm());
-                float lowenergy;// = calLBack->getEnergy(telescopeNumber,chanNum,ilowenergy+ran->Rndm());
+                float lowenergy;// = calLBack->getEnergy(telescopeNumber,chanNum,unCalEnergyLowGain+ran->Rndm());
                 //lowenergy = calBack->getEnergy(telescopeNumber,chanNum,lowenergy);
                 if(lowenergy > 70. && energy > 20.) //cut off for switching high to low gain energy
                     energy = lowenergy;
@@ -970,7 +919,7 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
 
                 //Back raw spectra
                 Histo->EbackR[telescopeNumber][chanNum]->Fill(uncalEnergy[0]); //high gain
-                Histo->EbackLR[telescopeNumber][chanNum]->Fill(ilowenergy[0]); //low gain
+                Histo->EbackLR[telescopeNumber][chanNum]->Fill(unCalEnergyLowGain[0]); //low gain
                 Histo->TbackR[telescopeNumber][chanNum]->Fill(time); //time
                 Histo->EBSum[telescopeNumber]->Fill(chanNum,uncalEnergy[0]);
 
@@ -980,18 +929,18 @@ bool hira::unpackSi_HINP4(ifstream& evtfile)
                 Histo->EBCSum[telescopeNumber]->Fill(chanNum,energy);
 
 
-                if (uncalEnergy[0] < 15000 && uncalEnergy[0] > 50 && ilowenergy[0] <15000)
+                if (uncalEnergy[0] < 15000 && uncalEnergy[0] > 50 && unCalEnergyLowGain[0] <15000)
                 {
                     bsumN[telescopeNumber][chanNum]++;
-                    bsumx[telescopeNumber][chanNum] += (double)ilowenergy[0];
-                    bsumxx[telescopeNumber][chanNum] += pow((double)ilowenergy[0],2);
+                    bsumx[telescopeNumber][chanNum] += (double)unCalEnergyLowGain[0];
+                    bsumxx[telescopeNumber][chanNum] += pow((double)unCalEnergyLowGain[0],2);
                     bsumy[telescopeNumber][chanNum] += uncalEnergy[0];
-                    bsumyx[telescopeNumber][chanNum] += uncalEnergy[0]*(double)ilowenergy[0];
+                    bsumyx[telescopeNumber][chanNum] += uncalEnergy[0]*(double)unCalEnergyLowGain[0];
                 }
 
                 if(energy >0.75)
                 {
-                    Telescope[telescopeNumber]->Back.Add(chanNum,energy,ilowenergy[0],uncalEnergy[0],time);
+                    Telescope[telescopeNumber]->Back.Add(chanNum,energy,unCalEnergyLowGain[0],uncalEnergy[0],time);
                 }
             }	  
         }
@@ -1030,6 +979,7 @@ hira::~hira()
     }
 
     iFfile.close();
+
     for (int i=0;i<NUMBER_OF_TELESCOPES;i++)
     {
         for (int j=0;j<NUMBER_OF_STRIPS;j++)
