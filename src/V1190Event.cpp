@@ -10,18 +10,13 @@ using namespace std;
 
 bool V1190Event::readEvent(ifstream& evtfile)
 {
-    // initialize event subsections
-    /*************************************************************************/
-    // Read data into the event
-    /*************************************************************************/
-
-    // read a section into the buffer
+    // read header data from input file into buffer
     buffer.resize(globalHeader.size);
     readWord(evtfile, buffer);
 
-    // if this word is of the global header type, read into the global header
     if(globalHeader.checkID(buffer[0]))
     {
+        // matched header indicator - store header data from the buffer
         globalHeader.extractData(buffer[0]);
     }
 

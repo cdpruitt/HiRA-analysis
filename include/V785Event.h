@@ -34,74 +34,75 @@
 
 #include <vector>
 
-class V785Event : public Event
+struct V785Event : public Event
 {
-    public:
-        /*********************************************************************
-        // Header data
-         *********************************************************************/
+    V785Event() : Event(1/*header.size + body.size + footer.size*/) {}
 
-        // number of channels triggered on this event
-        Quantity channelsHit{"channels hit", 0x3F, 8};
+    /*********************************************************************
+    // Header data
+     *********************************************************************/
 
-        // crate number of module
-        Quantity crateNumber{"crate number", 0xFF, 16};
+    // number of channels triggered on this event
+    Quantity channelsHit{"channels hit", 0x3F, 8};
 
-        // unique identifier for header words
-        Quantity headerIndicator{"header indicator", 0x7, 24, 0x010};
+    // crate number of module
+    Quantity crateNumber{"crate number", 0xFF, 16};
 
-        // geographic address of module
-        Quantity moduleAddress = {"address of module", 0x1F, 27};
+    // unique identifier for header words
+    Quantity headerIndicator{"header indicator", 0x7, 24, 0x010};
 
-        /*********************************************************************
-        // Body data
-         *********************************************************************/
+    // geographic address of module
+    Quantity moduleAddress = {"address of module", 0x1F, 27};
 
-        // unique indicator for body words
-        Quantity bodyIndicator = {"body indicator", 0x7, 24, 0x0};
+    /*********************************************************************
+    // Body data
+     *********************************************************************/
 
-        class singleChannelData
-        {
-            public:
-                // value of ADC for this channel
-                Quantity ADCValue = {"ADC value", 0xFFF, 0};
+    // unique indicator for body words
+    Quantity bodyIndicator = {"body indicator", 0x7, 24, 0x0};
 
-                // indicates that value exceeded ADC range
-                Quantity overflow = {"overflow bit", 0x1, 12};
+    class singleChannelData
+    {
+        public:
+            // value of ADC for this channel
+            Quantity ADCValue = {"ADC value", 0xFFF, 0};
 
-                // indicates that value was below ADC range
-                Quantity underflow = {"underflow bit", 0x1, 13};
+            // indicates that value exceeded ADC range
+            Quantity overflow = {"overflow bit", 0x1, 12};
 
-                // this channel's number, starting from 0
-                Quantity channelID = {"channel ID", 0x1F, 16};
+            // indicates that value was below ADC range
+            Quantity underflow = {"underflow bit", 0x1, 13};
 
-                // geographic address of module
-                Quantity moduleAddress = {"address of module", 0x1F, 27};
+            // this channel's number, starting from 0
+            Quantity channelID = {"channel ID", 0x1F, 16};
 
-                // read quantities for a single channel from a word
-                singleChannelData(unsigned int word)
-                {
-                    ADCValue.read(word);
-                    overflow.read(word);
-                    underflow.read(word);
-                    channelID.read(word);
-                }
-        };
+            // geographic address of module
+            Quantity moduleAddress = {"address of module", 0x1F, 27};
 
-        // keep track of each channel's data, in order read out by the ADC
-        std::vector<singleChannelData> allChannelsData; 
+            // read quantities for a single channel from a word
+            singleChannelData(unsigned int word)
+            {
+                ADCValue.read(word);
+                overflow.read(word);
+                underflow.read(word);
+                channelID.read(word);
+            }
+    };
 
-        /*********************************************************************
-        // Footer data for an ADC event
-         *********************************************************************/
+    // keep track of each channel's data, in order read out by the ADC
+    std::vector<singleChannelData> allChannelsData; 
 
-        // Keep track of the total number of events outputted by the ADC
-        Quantity eventCounter = {"Event counter", 0xFFFFFF, 0};
+    /*********************************************************************
+    // Footer data for an ADC event
+     *********************************************************************/
 
-        // unique indicator for footer words
-        Quantity footerIndicator = {"footer indicator", 0x7, 24, 0x100};
+    // Keep track of the total number of events outputted by the ADC
+    Quantity eventCounter = {"Event counter", 0xFFFFFF, 0};
 
-        bool readEvent(std::ifstream& evtfile);
+    // unique indicator for footer words
+    Quantity footerIndicator = {"footer indicator", 0x7, 24, 0x100};
+
+    bool readEvent(std::ifstream& evtfile);
 };
 
 #endif

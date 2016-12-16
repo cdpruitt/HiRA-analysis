@@ -16,7 +16,7 @@ class telescope
  public:
 
   static bool const relativity;
-  telescope(TRandom* ran,int id0, histo_read * Histo0);
+  telescope(int id0, histo_read * Histo0);
   ~telescope();
   elist Front;
   elist Back;

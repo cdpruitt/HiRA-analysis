@@ -54,6 +54,9 @@
 
 struct V1190Event : public Event
 {
+    V1190Event() : Event(globalHeader.size + NUMBER_OF_TDCS*globalBody.size +
+           extendedTimeSection.size + globalTrailer.size) {}
+
     /*********************************************************************/
     struct GlobalHeader : public Section
     {
@@ -75,8 +78,7 @@ struct V1190Event : public Event
 
     struct GlobalBodySetup
     {
-
-        GlobalBodySetup()
+        GlobalBodySetup(int s) : size(s)
         {
             if(HAS_TDC_HEADER)
             {
@@ -99,10 +101,9 @@ struct V1190Event : public Event
             }
 
             // detemine total size of body section
-            sectionSize = 0;
             for(Section subsection : subsections)
             {
-                sectionSize += subsection.size;
+                size += subsection.size;
             }
         }
 
@@ -186,13 +187,13 @@ struct V1190Event : public Event
 
         std::vector<Section> subsections;
 
-        unsigned int sectionSize;
+        unsigned int size;
     };
 
     /*********************************************************************/
     struct GlobalBody : public GlobalBodySetup
     {
-        GlobalBody() : GlobalBodySetup()
+        GlobalBody() : GlobalBodySetup(subsections.size())
         {}
 
         void extractData(std::vector<unsigned int> buffer)
@@ -202,8 +203,6 @@ struct V1190Event : public Event
                 subsections[i].extractData(buffer[i]);
             }
         }
-
-        unsigned int size = subsections.size();
     };
 
     // store each GlobalBody in order (one GlobalBody per TDC)
@@ -211,11 +210,18 @@ struct V1190Event : public Event
     /*********************************************************************/
 
     /*********************************************************************/
-    struct ExtendedTime
+    struct ExtendedTime : public Section
     {
-        Quantity extendedTriggerTimetag = {"Extended trigger timetag", 0x7FFFFFF, 0};
+        ExtendedTime() : Section(Quantity("Extended time identifier", 0x1F, 27, 0x10001),1),
+                extendedTriggerTimetag("Extended trigger timetag", 0x7FFFFFF, 0)
+        {}
 
-        Quantity identifier = {"Extended time identifier", 0x1F, 27, 0x10001};
+        Quantity extendedTriggerTimetag;
+
+        void extractData(unsigned int word)
+        {
+            extendedTriggerTimetag.read(word);
+        }
     };
     /*********************************************************************/
 
@@ -245,10 +251,11 @@ struct V1190Event : public Event
     GlobalHeader globalHeader;
     GlobalBody globalBody;
     GlobalTrailer globalTrailer;
+    ExtendedTime extendedTimeSection; // optional?
 
     std::vector<unsigned int> buffer;
 
-    bool readEvent(std::ifstream& evtfile);
+    virtual bool readEvent(std::ifstream& evtfile);
 };
 
 #endif

@@ -2,6 +2,7 @@
 #include "../include/readData.h"
 #include "../include/unpackerConstants.h"
 #include "../include/V785Configuration.h"
+#include "../include/V1190Configuration.h"
 
 hira::hira(histo_read *Histo1)
 {
@@ -131,7 +132,7 @@ bool hira::unpackCsi(ifstream& evtfile)
 
     unsigned long* point;
 
-    for (int iadc = 0;iadc<NUMBER_OF_ADCS;iadc++)
+    for (unsigned int iadc = 0;iadc<NUMBER_OF_ADCS;iadc++)
     {
         //check for ffff's
         unsigned long f = *point;
@@ -141,7 +142,7 @@ bool hira::unpackCsi(ifstream& evtfile)
             continue;
         } 
 
-        CsIMultiplicity = 0;
+        unsigned int CsIMultiplicity = 0;
 
         ///point = ADC.read(point);  // suck out the info in the qdc
         for (int i=0;i<(int)ADC.channelsHit.value;i++)
@@ -278,7 +279,7 @@ bool hira::unpackCsi(ifstream& evtfile)
         point++;
         unsigned short f2 = *point;
         point++;
-        return (f1!=0xffff || f2!=0xFFFF)
+        return (f1!=0xffff || f2!=0xFFFF);
     }
 
     // match up energies to times
