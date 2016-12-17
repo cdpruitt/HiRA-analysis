@@ -1,5 +1,7 @@
-#include "../include/V1190Configuration.h"
+#include "../include/DataChunk.h"
+#include "../include/CompositeDataChunk.h"
 #include "../include/V1190Event.h"
+#include "../include/V1190Configuration.h"
 #include "../include/readData.h"
 
 #include <iostream>
@@ -8,49 +10,40 @@
 
 using namespace std;
 
-bool V1190Event::readEvent(ifstream& evtfile)
+V1190Event::V1190Event(string n, unsigned int numberOfTDCs, bool hasExtendedTime) :
+    CompositeDataChunk(n)
 {
-    // read header data from input file into buffer
-    buffer.resize(globalHeader.size);
-    readWord(evtfile, buffer);
+    // Create global header for event
+    SimpleDataChunk* globalHeader = new SimpleDataChunk("V1190 Global Header",4);
+    globalHeader->add(Datum("Geographic Address", 0x1F, 0));
+    globalHeader->add(Datum("Event Count", 0x3FFFFF, 5));
+    globalHeader->add(Identifier("Header Identifier", 0x1F, 27, 0x01000));
 
-    if(globalHeader.checkID(buffer[0]))
+    add(globalHeader);
+
+    // Create global body for event
+    for(unsigned int i=0; i<numberOfTDCs; i++)
     {
-        // matched header indicator - store header data from the buffer
-        globalHeader.extractData(buffer[0]);
+        add(new GlobalBody(HAS_TDC_HEADER, HAS_TDC_MEASUREMENT,
+                    HAS_TDC_TRAILER, HAS_TDC_ERROR));
     }
 
-    else
+    // Create optional 'extended time' section
+    if(hasExtendedTime)
     {
-        cerr << "Error: missing global header to V1190 Event." << endl;
-        return false;
+        SimpleDataChunk* extendedTime = new SimpleDataChunk("V1190 Extended Time",4);
+        extendedTime->add(Datum("Extended trigger timetag", 0x7FFFFFF, 0));
+        extendedTime->add(Identifier("Extended time identifier", 0x1F, 27, 0x10001));
+
+        add(extendedTime);
     }
 
-    // read one or more global bodies from filestream
-    buffer.resize(globalBody.size);
-    readWord(evtfile, buffer);
+    // Create global trailer
+    SimpleDataChunk* globalTrailer = new SimpleDataChunk("V1190 Global Trailer",4);
+    globalTrailer->add(Datum("geographic address", 0x1F, 0));
+    globalTrailer->add(Datum("word count", 0xFFFF, 5));
+    globalTrailer->add(Datum("trigger status", 0x7, 24));
+    globalTrailer->add(Identifier("trailer identifier", 0x1F, 27, 0x10000));
 
-    // if this word is of the global body type, read into a global body event
-    // each TDC has its own global body
-    for(int i=0; i<NUMBER_OF_TDCS; i++)
-    {
-        globalBody.extractData(buffer);
-    }
-
-    // read footer
-    buffer.resize(globalTrailer.size);
-    readWord(evtfile, buffer);
-
-    if(globalTrailer.checkID(buffer[0]))
-    {
-        globalTrailer.extractData(buffer[0]);
-    }
-
-    else
-    {
-        cerr << "Error: missing global footer to V1190 Event." << endl;
-        return false;
-    }
-
-    return true;
+    add(globalTrailer);
 }

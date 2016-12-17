@@ -145,15 +145,15 @@ bool hira::unpackCsi(ifstream& evtfile)
         unsigned int CsIMultiplicity = 0;
 
         ///point = ADC.read(point);  // suck out the info in the qdc
-        for (int i=0;i<(int)ADC.channelsHit.value;i++)
+        for (int i=0;i<(int)ADC.header.channelsHit.value;i++)
         {
-            if (ADC.allChannelsData[i].underflow.value || ADC.allChannelsData[i].overflow.value)
+            if (ADC.bodyData[i].underflow.value || ADC.bodyData[i].overflow.value)
             {
                 continue;
             }
 
-            int id = ADC.allChannelsData[i].channelID.value + CHANNELS_PER_ADC*iadc;
-            int uncalEnergy = ADC.allChannelsData[i].ADCValue.value;
+            int id = ADC.bodyData[i].channelID.value + CHANNELS_PER_ADC*iadc;
+            int uncalEnergy = ADC.bodyData[i].ADCValue.value;
 
             if(id < TOTAL_CSIS)
             {

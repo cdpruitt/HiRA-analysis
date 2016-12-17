@@ -47,215 +47,85 @@
 #ifndef V1190_EVENT_H
 #define V1190_EVENT_H
 
-#include "../include/event.h"
-#include "../include/V1190Configuration.h"
+#include "SimpleDataChunk.h"
+#include "CompositeDataChunk.h"
+#include "Identifier.h"
+#include "Datum.h"
+#include "V1190Configuration.h"
 
 #include <vector>
 
-struct V1190Event : public Event
+class V1190Event : public CompositeDataChunk
 {
-    V1190Event() : Event(globalHeader.size + NUMBER_OF_TDCS*globalBody.size +
-           extendedTimeSection.size + globalTrailer.size) {}
+    public:
+        V1190Event(std::string n, unsigned int numberTDCs, bool hasExtendedTime);
 
-    /*********************************************************************/
-    struct GlobalHeader : public Section
-    {
-        GlobalHeader() : Section(Quantity("header identifier", 0x1F, 27, 0x01000),1),
-                         geographicAddress("geographic address", 0x1F, 0),
-                         eventCount("event count", 0x3FFFFF, 5)
-                         {}
-
-        Quantity geographicAddress;
-        Quantity eventCount;
-
-        void extractData(unsigned int word)
+    private:
+        class GlobalBody : public CompositeDataChunk
         {
-            geographicAddress.read(word);
-            eventCount.read(word);
-        }
-    };
-    /*********************************************************************/
+            public:
+                GlobalBody(bool hasTDCHeader,
+                           bool hasTDCMeasurement,
+                           bool hasTDCTrailer,
+                           bool hasTDCError) : CompositeDataChunk("V1190 Global Body")
+                {
+                    if(hasTDCHeader)
+                    {
+                        SimpleDataChunk* TDCHeader = new SimpleDataChunk("TDC Header", 4);
 
-    struct GlobalBodySetup
-    {
-        GlobalBodySetup(int s) : size(s)
-        {
-            if(HAS_TDC_HEADER)
-            {
-                subsections.push_back(TDCHeader());
-            }
+                        TDCHeader->add(Datum("Bunch ID", 0xFFF, 0));
+                        TDCHeader->add(Datum("Event ID", 0xFFF, 12));
+                        TDCHeader->add(Datum("TDC ID", 0x3, 24));
+                        TDCHeader->add(Identifier("TDC Header identifier", 0x7, 24, 0x00001));
 
-            if(HAS_TDC_MEASUREMENT)
-            {
-                subsections.push_back(TDCMeasurement());
-            }
+                        add(TDCHeader);
+                    }
 
-            if(HAS_TDC_TRAILER)
-            {
-                subsections.push_back(TDCTrailer());
-            }
+                    if(hasTDCMeasurement)
+                    {
+                        SimpleDataChunk* TDCMeasurement = new SimpleDataChunk("TDC Measurement", 4);
 
-            if(HAS_TDC_ERROR)
-            {
-                subsections.push_back(TDCError());
-            }
+                        TDCMeasurement->add(Datum("Measurement", 0x7FFFF, 0));
+                        TDCMeasurement->add(Datum("Channel number", 0x1FFF, 19));
+                        TDCMeasurement->add(Datum("Trailing or leading", 0x1, 26));
+                        TDCMeasurement->add(Identifier("TDC Measurement identifier", 0x7, 24, 0x00000));
 
-            // detemine total size of body section
-            for(Section subsection : subsections)
-            {
-                size += subsection.size;
-            }
-        }
+                        add(TDCMeasurement);
+                    }
 
-        // Global Body sections
-        struct TDCHeader : public Section
-        {
-            TDCHeader() : Section(Quantity("TDC Header identifier", 0x7, 24, 0x00001),1),
-                          bunchID("Bunch ID", 0xFFF, 0),
-                          eventID("Event ID", 0xFFF, 12),
-                          TDCID("TDC ID", 0x3, 24)
-                          {}
+                    if(hasTDCTrailer)
+                    {
+                        SimpleDataChunk* TDCTrailer = new SimpleDataChunk("TDC Trailer", 4);
 
-            Quantity bunchID;
-            Quantity eventID;
-            Quantity TDCID;
+                        TDCTrailer->add(Datum("Word count", 0xFFF, 0));
+                        TDCTrailer->add(Datum("Event ID", 0xFFF, 12));
+                        TDCTrailer->add(Datum("TDC ID", 0x3, 24));
+                        TDCTrailer->add(Identifier("TDC Trailer identifier", 0x7, 24, 0x00011));
 
-            void extractData(unsigned int word)
-            {
-                bunchID.read(word);
-                eventID.read(word);
-                TDCID.read(word);
-            }
+                        add(TDCTrailer);
+                    }
+
+                    if(hasTDCError)
+                    {
+                        SimpleDataChunk* TDCError = new SimpleDataChunk("TDC Error", 4);
+
+                        TDCError->add(Datum("Error flags", 0x3FFF, 0));
+                        TDCError->add(Datum("TDC ID", 0x3, 24));
+                        TDCError->add(Identifier("TDC Error identifier", 0x7, 24, 0x00100));
+
+                        add(TDCError);
+                    }
+                }
+
+                void add(DataChunk* d)
+                {
+                    subChunks.push_back(d);
+                }
+
+                void extractData(std::ifstream& evtfile)
+                {
+                }
         };
-
-        struct TDCMeasurement : public Section
-        {
-            TDCMeasurement() : Section(Quantity("TDC Measurement identifier", 0x7, 24, 0x00000),1),
-                               measurement ("Measurement", 0x7FFFF, 0),
-                               channel ("Channel number", 0x1FFF, 19),
-                               trailOrLead("Trailing or leading", 0x1, 26)
-            {}
-
-            Quantity measurement;
-            Quantity channel;
-            Quantity trailOrLead;
-
-            void extractData(unsigned int word)
-            {
-                measurement.read(word);
-                channel.read(word);
-                trailOrLead.read(word);
-            }
-        };
-
-        struct TDCTrailer : public Section
-        {
-            TDCTrailer() : Section(Quantity("TDC Trailer identifier", 0x7, 24, 0x00011),1),
-                                   wordCount("Word count", 0xFFF, 0),
-                                   eventID("Event ID", 0xFFF, 12),
-                                   TDCID("TDC ID", 0x3, 24)
-                                   {}
-
-            Quantity wordCount;
-            Quantity eventID;
-            Quantity TDCID;
-
-            void extractData(unsigned int word)
-            {
-                wordCount.read(word);
-                eventID.read(word);
-                TDCID.read(word);
-            }
-        };
-
-        struct TDCError : public Section
-        {
-            TDCError() : Section(Quantity("TDC Error identifier", 0x7, 24, 0x00100),1),
-                                 errorFlags("Error flags", 0x3FFF, 0),
-                                 TDCID("TDC ID", 0x3, 24)
-            {}
-
-            Quantity errorFlags;
-            Quantity TDCID;
-
-            void extractData(unsigned int word)
-            {
-                errorFlags.read(word);
-                TDCID.read(word);
-            }
-        };
-
-        std::vector<Section> subsections;
-
-        unsigned int size;
-    };
-
-    /*********************************************************************/
-    struct GlobalBody : public GlobalBodySetup
-    {
-        GlobalBody() : GlobalBodySetup(subsections.size())
-        {}
-
-        void extractData(std::vector<unsigned int> buffer)
-        {
-            for(int i=0; i<(int)buffer.size(); i++)
-            {
-                subsections[i].extractData(buffer[i]);
-            }
-        }
-    };
-
-    // store each GlobalBody in order (one GlobalBody per TDC)
-    std::vector<GlobalBody> TDCData; 
-    /*********************************************************************/
-
-    /*********************************************************************/
-    struct ExtendedTime : public Section
-    {
-        ExtendedTime() : Section(Quantity("Extended time identifier", 0x1F, 27, 0x10001),1),
-                extendedTriggerTimetag("Extended trigger timetag", 0x7FFFFFF, 0)
-        {}
-
-        Quantity extendedTriggerTimetag;
-
-        void extractData(unsigned int word)
-        {
-            extendedTriggerTimetag.read(word);
-        }
-    };
-    /*********************************************************************/
-
-    /*********************************************************************/
-    struct GlobalTrailer : public Section
-    {
-        GlobalTrailer() : Section(Quantity("trailer identifier", 0x1F, 27, 0x10000),1),
-                          geographicAddress("geographic address", 0x1F, 0),
-                          wordCount("word count", 0xFFFF, 5),
-                          triggerStatus("trigger status", 0x7, 24)
-        {}
-
-        Quantity geographicAddress;
-        Quantity wordCount;
-        Quantity triggerStatus;
-
-        void extractData(unsigned int word)
-        {
-            geographicAddress.read(word);
-            wordCount.read(word);
-            triggerStatus.read(word);
-        }
-
-    };
-    /*********************************************************************/
-
-    GlobalHeader globalHeader;
-    GlobalBody globalBody;
-    GlobalTrailer globalTrailer;
-    ExtendedTime extendedTimeSection; // optional?
-
-    std::vector<unsigned int> buffer;
-
-    virtual bool readEvent(std::ifstream& evtfile);
 };
 
 #endif

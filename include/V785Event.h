@@ -42,67 +42,86 @@ struct V785Event : public Event
     // Header data
      *********************************************************************/
 
-    // number of channels triggered on this event
-    Quantity channelsHit{"channels hit", 0x3F, 8};
-
-    // crate number of module
-    Quantity crateNumber{"crate number", 0xFF, 16};
-
-    // unique identifier for header words
-    Quantity headerIndicator{"header indicator", 0x7, 24, 0x010};
-
-    // geographic address of module
-    Quantity moduleAddress = {"address of module", 0x1F, 27};
-
-    /*********************************************************************
-    // Body data
-     *********************************************************************/
-
-    // unique indicator for body words
-    Quantity bodyIndicator = {"body indicator", 0x7, 24, 0x0};
-
-    class singleChannelData
+    struct Header : public Section
     {
-        public:
-            // value of ADC for this channel
-            Quantity ADCValue = {"ADC value", 0xFFF, 0};
+        Header() : Section(Quantity("header identifier", 0x7, 24, 0x010),1),
+                   channelsHit("channels hit this event", 0x3f, 8),
+                   crateNumber("crate number of module", 0xFF, 16),
+                   geographicAddress("address of module", 0x1F, 27)
+        {}
 
-            // indicates that value exceeded ADC range
-            Quantity overflow = {"overflow bit", 0x1, 12};
 
-            // indicates that value was below ADC range
-            Quantity underflow = {"underflow bit", 0x1, 13};
+        Quantity channelsHit;
+        Quantity crateNumber;
+        Quantity geographicAddress;
 
-            // this channel's number, starting from 0
-            Quantity channelID = {"channel ID", 0x1F, 16};
-
-            // geographic address of module
-            Quantity moduleAddress = {"address of module", 0x1F, 27};
-
-            // read quantities for a single channel from a word
-            singleChannelData(unsigned int word)
-            {
-                ADCValue.read(word);
-                overflow.read(word);
-                underflow.read(word);
-                channelID.read(word);
-            }
+        void extractData(unsigned int word)
+        {
+            channelsHit.read(word);
+            crateNumber.read(word);
+            geographicAddress.read(word);
+        }
     };
 
-    // keep track of each channel's data, in order read out by the ADC
-    std::vector<singleChannelData> allChannelsData; 
-
     /*********************************************************************
-    // Footer data for an ADC event
+    // Body data: one per channel triggered during this event
      *********************************************************************/
 
-    // Keep track of the total number of events outputted by the ADC
-    Quantity eventCounter = {"Event counter", 0xFFFFFF, 0};
+    struct Body : public Section
+    {
+        Body() : Section(Quantity("body identifier", 0x7, 24, 0x0),1),
+                 ADCValue("ADC value", 0xFFF, 0),
+                 overflow("overflow bit", 0x1, 12),
+                 underflow("underflow bit", 0x1, 13),
+                 channelID("channel ID", 0x1F, 16),
+                 geographicAddress("address of module", 0x1F, 27)
+        {}
 
-    // unique indicator for footer words
-    Quantity footerIndicator = {"footer indicator", 0x7, 24, 0x100};
+        Quantity ADCValue;
+        Quantity overflow;
+        Quantity underflow;
+        Quantity channelID;
+        Quantity geographicAddress;
 
-    bool readEvent(std::ifstream& evtfile);
+        // read quantities for a single channel from a word
+        void extractData(unsigned int word)
+        {
+            ADCValue.read(word);
+            overflow.read(word);
+            underflow.read(word);
+            channelID.read(word);
+            geographicAddress.read(word);
+        }
+    };
+
+    // keep track of each body section in the order read out by the ADC
+    std::vector<Body> bodyData; 
+
+    /*********************************************************************
+    // Trailer
+     *********************************************************************/
+
+    struct Trailer : public Section
+    {
+        Trailer() : Section(Quantity("trailer identifier", 0x7, 24, 0x100),1),
+                    eventCounter("Event counter", 0xFFFFFF, 0)
+        {}
+
+        Quantity eventCounter;
+
+        void extractData(unsigned int word)
+        {
+            eventCounter.read(word);
+        }
+    };
+
+    Header header;
+    Body body;
+    Trailer trailer;
+
+    std::vector<unsigned int> buffer;
+
+    virtual bool readEvent(std::ifstream& evtfile);
 };
 
 #endif

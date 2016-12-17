@@ -10,31 +10,50 @@ using namespace std;
 bool V785Event::readEvent(ifstream& evtfile)
 {
     // read header
-    unsigned int word;
-    readNextWord(evtfile, &word);
+    buffer.resize(header.size);
+    readWord(evtfile, buffer);
 
-    while(!headerIndicator.check(word))
+    if(header.checkID(buffer[0]))
     {
-        // failed to find header indicator
-        cout << "Error: missing header while reading ADC event. Skipping to next header..." << endl;
-        readNextWord(evtfile, &word);
+        // matched header indicator - store header data from the buffer
+        header.extractData(buffer[0]);
     }
 
-    channelsHit.read(word);
-    crateNumber.read(word);
-    headerIndicator.read(word);
+    else
+    {
+        cerr << "Error: missing header for V785 Event." << endl;
+        return false;
+    }
 
     // read body
-    while(readNextWord(evtfile, &word) && bodyIndicator.check(word))
+    buffer.resize(body.size);
+    readWord(evtfile, buffer);
+
+    if(body.checkID(buffer[0]))
     {
-        allChannelsData.push_back(singleChannelData(word));
+        // matched header indicator - store header data from the buffer
+        body.extractData(buffer[0]);
     }
 
-    // reached footer
-    if(!footerIndicator.check(word))
+    else
     {
-        // failed to find footer indicator
-        cout << "Error: missing footer while reading ADC event. Continuing..." << endl;
+        cerr << "Error: missing body for V785 Event." << endl;
+        return false;
+    }
+    
+    // read trailer
+    buffer.resize(trailer.size);
+    readWord(evtfile, buffer);
+
+    if(trailer.checkID(buffer[0]))
+    {
+        // matched header indicator - store header data from the buffer
+        trailer.extractData(buffer[0]);
+    }
+
+    else
+    {
+        cerr << "Error: missing trailer for V785 Event." << endl;
         return false;
     }
 

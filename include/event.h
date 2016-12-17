@@ -51,7 +51,7 @@ struct Event
             return (identifier.value == ((word >> identifier.bitShift) & identifier.bitMask));
         }
 
-        void extractData(unsigned int word);
+        virtual void extractData(unsigned int word);
 
     };
 
