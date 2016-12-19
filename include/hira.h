@@ -6,12 +6,12 @@
 #include "histo_sort.h"
 #include "histo_read.h"
 #include "telescope.h"
-#include "V785Event.h"
-#include "CompositeDataChunk.h"
-#include "DataChunk.h"
+#include "unpacker/V785Event.h"
+#include "unpacker/CompositeDataChunk.h"
+#include "unpacker/DataChunk.h"
 #include "pixels.h"
-#include "TDC1190.h"
-#include "geometry.h"
+#include "unpacker/TDC1190.h"
+#include "detector/geometry.h"
 
 using namespace std;
 

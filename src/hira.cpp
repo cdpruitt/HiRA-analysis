@@ -1,8 +1,8 @@
 #include "../include/hira.h"
-#include "../include/readData.h"
-#include "../include/unpackerConstants.h"
-#include "../include/V785Configuration.h"
-#include "../include/V1190Configuration.h"
+#include "../include/unpacker/readData.h"
+#include "../include/unpacker/unpackerConstants.h"
+#include "../include/unpacker/V785Configuration.h"
+#include "../include/unpacker/V1190Configuration.h"
 
 hira::hira(histo_read *Histo1)
 {

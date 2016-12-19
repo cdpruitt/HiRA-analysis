@@ -14,8 +14,8 @@
 #include "correl.h"
 #include "doppler.h"
 #include "forest.h"
-#include "event.h"
-#include "geometry.h"
+#include "unpacker/event.h"
+#include "detector/geometry.h"
 
 const double REL_ENERGY_LOWER_BOUND = 2.25; // in MeV
 const double REL_ENERGY_UPPER_BOUND = 2.75; // in MeV

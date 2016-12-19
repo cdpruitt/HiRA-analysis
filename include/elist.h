@@ -1,5 +1,5 @@
 #include <string>
-#include "geometry.h"
+#include "detector/geometry.h"
 
 using namespace std;
 

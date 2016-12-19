@@ -20,32 +20,29 @@
  *
 *******************************************************************************/
 
-#ifndef RING_EVENT_H
-#define RING_EVENT_H
+#ifndef RING_ITEM_H
+#define RING_ITEM_H
 
-#include "../include/event.h"
+#include "CompositeDataChunk.h"
+#include "SimpleDataChunk.h"
+#include "RingBodyItem.h"
 
-struct RingEvent : public Event
+const bool BODY_HEADER_TIMESTAMP = false;
+const bool BODY_HEADER_SOURCE_ID = false;
+const bool BODY_HEADER_BARRIER_TYPE = false;
+
+class RingItem : public CompositeDataChunk
 {
-    struct EventHeader
-    {
-        Quantity sizeOfEvent;
-        Quantity eventType;
-    }
+    public:
+        RingItem(std::string n);
+        unsigned int getType();
+        void extractData(std::ifstream& evtfile);
 
-    struct BodyHeader
-    {
-    }
-
-    struct EventData
-    {
-    }
-
-    EventHeader eh;
-    BodyHeader bh;
-    EventData ed;
-
-    size = eh.size + bh.size + ed.size;
-}
+    private:
+        CompositeDataChunk* eventHeader;
+        CompositeDataChunk* bodyHeader;
+        RingBodyItem* eventData;
+        unsigned int type;
+};
 
 #endif

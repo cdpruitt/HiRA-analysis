@@ -1,7 +1,7 @@
 #ifndef COMPOSITE_DATA_CHUNK
 #define COMPOSITE_DATA_CHUNK
 
-#include "../include/DataChunk.h"
+#include "DataChunk.h"
 
 #include <fstream>
 #include <vector>

@@ -30,12 +30,12 @@
 #ifndef ADC_EVENT_H
 #define ADC_EVENT_H
 
-#include "../include/event.h"
-#include "../include/SimpleDataChunk.h"
-#include "../include/CompositeDataChunk.h"
-#include "../include/Identifier.h"
-#include "../include/Datum.h"
-#include "../include/V785Configuration.h"
+#include "event.h"
+#include "SimpleDataChunk.h"
+#include "CompositeDataChunk.h"
+#include "Identifier.h"
+#include "Datum.h"
+#include "V785Configuration.h"
 
 #include <vector>
 

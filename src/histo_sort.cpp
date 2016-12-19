@@ -1,5 +1,5 @@
 #include "../include/histo_sort.h"
-#include "../include/geometry.h"
+#include "../include/detector/geometry.h"
 
 #include <iostream>
 #include <string>

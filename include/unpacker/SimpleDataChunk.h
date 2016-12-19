@@ -17,9 +17,6 @@ class SimpleDataChunk : public DataChunk
         void add(DataChunk*)
         {}
 
-        void remove(DataChunk*)
-        {}
-
         void add(Datum d)
         {
             data.push_back(d);

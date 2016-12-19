@@ -53,12 +53,13 @@
 #include "../include/histo_sort.h"
 #include "../include/histo_read.h"
 #include "../include/forest.h"
+#include "../include/singletons/FileOpener.h"
+
+#include "../include/unpacker/RingItem.h"
 
 using namespace std;
 
 const string EVENT_FILE_STEM = "/events/e14002/complete/run-";
-const int HEADER_WORDS = 4;
-const int HEADER_BYTES = HEADER_WORDS*2;
 
 int main(int argc, char* argv[])
 {
@@ -68,16 +69,13 @@ int main(int argc, char* argv[])
 
     vector<int> runNumbers; // list of the run numbers we'd like to read
 
+    FileOpener* fileOpener = FileOpener::Instance();
+
     if(argc==1) // no run numbers provided as arguments to './sort';
                 // read run numbers from runfile
     {
         ifstream runFile;
-        runFile.open("numbers.beam");
-        if (!runFile.is_open())
-        {
-            cout << "Error: could not open runfile. Exiting..." << endl;
-            return 1;
-        }
+        fileOpener->openFile("numbers.beam", runFile);
 
         string line;
         while(getline(runFile,line))
@@ -108,15 +106,15 @@ int main(int argc, char* argv[])
     short runno = 0;
 
     // initialize the classes for processing sorted events
-    histo_sort * Histo_sort = new histo_sort();
+    ///histo_sort * Histo_sort = new histo_sort();
     //histo_read * Histo_read = new histo_read();
-    forest * Forest = new forest();
+    ///forest * Forest = new forest();
 
-    det Det(Histo_sort);
+    ///det Det(Histo_sort);
 
     for(int runNumber : runNumbers)
     {
-        Forest->newTree(runNumber);
+        ///Forest->newTree(runNumber);
 
         // form the run file name
         stringstream runNumberFormatted;
@@ -128,29 +126,16 @@ int main(int argc, char* argv[])
         fileNameStream << EVENT_FILE_STEM << runNumberFormatted;
         string eventFileName = fileNameStream.str();
 
-        //open evt file
+        // open the event file
         ifstream evtfile;
-        evtfile.open(eventFileName.c_str(),ios::binary);
-        if (!evtfile.is_open())
-        {
-            cout << "Error: could not open event file" << eventFileName << ". Exiting..." << endl;
-            return 1;
-        }
-
-        if (evtfile.bad() || evtfile.fail())
-        {
-            cout << "Error: " << eventFileName << " bad." << endl;
-        }
+        fileOpener->openFile(eventFileName, evtfile, "b");
 
         cout << endl << "Processing " << eventFileName << "..." << endl;
-
-        unsigned short headerBuffer[HEADER_WORDS];
-
-        bool endOfRun = false; // keep track of end-of-run indicator events
 
         /***********************************************************************
          * Parse an event file word-by-word
          **********************************************************************/
+        bool endOfRun = false; // keep track of end-of-run indicator events
 
         while(!evtfile.eof() && !evtfile.bad() && !endOfRun)
         {
@@ -158,18 +143,10 @@ int main(int argc, char* argv[])
              * Read event header
              ******************************************************************/
 
-            evtfile.read((char*)headerBuffer,HEADER_BYTES);
+            RingItem* ringItem = new RingItem("Ring Item");
+            ringItem->extractData(evtfile);
 
-            unsigned short *point;
-            point = headerBuffer;
-            int totalBytesInEvent = *point++;
-            int evtType = *point++;
-
-            /*******************************************************************
-             * Read event body
-             ******************************************************************/
-
-            int dataBytes = totalBytesInEvent - HEADER_BYTES;
+            /**int dataBytes = totalBytesInEvent - HEADER_BYTES;
             int dataWords = dataBytes/2;
 
             unsigned short dataBuffer[dataWords];
@@ -177,59 +154,13 @@ int main(int argc, char* argv[])
 
             switch(evtType)
             {
-                case 1: 
-                    runno = dataBuffer[0];
-                    cout << "run number = " << runno << endl; 
-                    break;
-
-                case 2:
-                    endOfRun = true;
-                    break;
-
-                case 3:
-                    Npauses++;
-                    break;
-
-                case 4:
-                    Nresumes++;
-                    break;
-
-                case 20:
-                    scalerBufferCounter++;
-                    break;
-
-                case 30:
-                    physicsEvent++;
-                    if (physicsEvent%10000 == 0) 
-                    {
-                        cout << '\xd'<< physicsEvent << flush;
-                    }
-
-                    // attempt to unpack event
-                    if (Det.unpack(evtfile))
-                    {
-                        physicsEventGood++;
-                        Det.treeGrow();
-                    }
-                    break;
-
-                case 31:
-                    physicsEventCounter++;
-                    break;
-
-                default:
-                    cout << "Error: encountered unknown evtType " << evtType << ". Exiting..." << endl;
-                    return 1;
-            }
+            }**/
 
         } //end loop over evtfile
 
-        Forest->writeTree();
+        ///Forest->writeTree();
 
     } //end loop of run file numbers
-
-    cout << endl << "physics Events = " << physicsEvent << endl;
-    cout << "Good physics Events = " << physicsEventGood << endl;
 
     if (physicsEvent > 0)
     {
@@ -242,5 +173,5 @@ int main(int argc, char* argv[])
     cout << "Numbers of pauses = " << Npauses << endl;
     cout << "Number of resumes = " << Nresumes << endl;
 
-    Histo_sort->write(); // this forces the histrograms to be read out to file
+    ///Histo_sort->write(); // this forces the histrograms to be read out to file
 }
