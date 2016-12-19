@@ -1,4 +1,6 @@
 #include "../include/V785Event.h"
+#include "../include/SimpleDataChunk.h"
+#include "../include/CompositeDataChunk.h"
 #include "../include/readData.h"
 
 #include <iostream>
@@ -7,55 +9,50 @@
 
 using namespace std;
 
-bool V785Event::readEvent(ifstream& evtfile)
+V785Event::V785Event(string n) : CompositeDataChunk(n)
 {
-    // read header
-    buffer.resize(header.size);
-    readWord(evtfile, buffer);
+    // Create header for event
+    header = new SimpleDataChunk("V785 Header", 4);
+    header->add(Datum("Channels Hit", 0x3f, 8));
+    header->add(Datum("Crate Number", 0xFF, 16));
+    header->add(Datum("Geographic Address", 0x1F, 27));
+    header->add(Identifier("Header Identifier", 0x7, 24, 0x010));
 
-    if(header.checkID(buffer[0]))
+    add(header);
+
+    // Create body for event
+    body = new CompositeDataChunk("V785 Body");
+    for(unsigned int i=0; i<getChannelsHit(); i++)
     {
-        // matched header indicator - store header data from the buffer
-        header.extractData(buffer[0]);
+        SimpleDataChunk* channelData = new SimpleDataChunk("V785 Single Channel", 4);
+        channelData->add(Datum("ADC Value", 0xFFF, 0));
+        channelData->add(Datum("Overflow Bit", 0x1, 12));
+        channelData->add(Datum("Underflow Bit", 0x1, 13));
+        channelData->add(Datum("Channel ID", 0x1F, 16));
+        channelData->add(Datum("Address of Module", 0x1F, 27));
+        channelData->add(Identifier("Body Identifier", 0x7, 24, 0x0));
+
+        body->add(channelData);
     }
 
-    else
+    // Create trailer for event
+    trailer = new SimpleDataChunk("V785 Trailer", 4);
+    trailer->add(Datum("Event Counter", 0xFFFFFF, 0));
+    trailer->add(Identifier("Trailer Identifier", 0x7, 24, 0x100));
+
+    add(trailer);
+}
+
+unsigned int V785Event::getChannelsHit()
+{
+    for(Datum d : header->data)
     {
-        cerr << "Error: missing header for V785 Event." << endl;
-        return false;
+        if(d.name == "Channels Hit")
+        {
+            return d.value;
+        }
     }
 
-    // read body
-    buffer.resize(body.size);
-    readWord(evtfile, buffer);
-
-    if(body.checkID(buffer[0]))
-    {
-        // matched header indicator - store header data from the buffer
-        body.extractData(buffer[0]);
-    }
-
-    else
-    {
-        cerr << "Error: missing body for V785 Event." << endl;
-        return false;
-    }
-    
-    // read trailer
-    buffer.resize(trailer.size);
-    readWord(evtfile, buffer);
-
-    if(trailer.checkID(buffer[0]))
-    {
-        // matched header indicator - store header data from the buffer
-        trailer.extractData(buffer[0]);
-    }
-
-    else
-    {
-        cerr << "Error: missing trailer for V785 Event." << endl;
-        return false;
-    }
-
-    return true;
+    cerr << "Error: couldn't find \"Channels Hit\" in event header." << endl;
+    return 0;
 }

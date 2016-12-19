@@ -116,15 +116,6 @@ class V1190Event : public CompositeDataChunk
                         add(TDCError);
                     }
                 }
-
-                void add(DataChunk* d)
-                {
-                    subChunks.push_back(d);
-                }
-
-                void extractData(std::ifstream& evtfile)
-                {
-                }
         };
 };
 

@@ -2,18 +2,18 @@
  * Represents XLM-mediated event structure for the HINP4 chip system:
  *
  * Event header
- *     XLM Marker | 32-bit word
+ *     XLM Marker | 16-bit word
  *     Number of chip words | 32-bit word
- *     Number of channels | 32-bit word
- *     (10 bytes with unknown function)
+ *     Number of channels | 16-bit word
+ *     XLM Timestemp | 64-bit word
  *
  * Event body
  * For each MB triggered:
  *     For each channel triggered:
- *         channelID | 32-bit word
- *         high-gain energy | 32-bit word
- *         low-gain energy | 32-bit word
- *         time | 32-bit word
+ *         channelID | 16-bit word
+ *         high-gain energy | 16-bit word
+ *         low-gain energy | 16-bit word
+ *         time | 16-bit word
  *
 *******************************************************************************/
 
@@ -22,18 +22,13 @@
 
 #include "../include/event.h"
 
-struct HINP4Event : public Event
+class HINP4Event : public CompositeDataChunk
 {
-    Quantity channelID("channel ID", 0xFFFFFFFF, 0);
-    Quantity energyHG("energy, high gain", 0xFFFFFFFF, 0);
-    Quantity energyLG("energy, low gain", 0xFFFFFFFF, 0);
-    Quantity time("time", 0xFFFFFFFF, 0);
+    public:
+        HINP4Event(std::string n);
 
-    vector<Quantity> eventQuantities = {channelID, energyHG, energyLG, time};
-
-    size = eventQuantities.size();
+    private:
+        void extractData(std::ifstream& evtfile);
 }
-
-
 
 #endif

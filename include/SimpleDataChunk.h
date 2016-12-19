@@ -38,14 +38,13 @@ class SimpleDataChunk : public DataChunk
 
         unsigned int getSize()
         {
-            return size;
+            return data.size();
         }
 
-    private:
         std::string name;
-        unsigned int size; // in bytes
-
         std::vector<Datum> data;
+
+    private:
 };
 
 #endif

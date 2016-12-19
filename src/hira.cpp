@@ -9,6 +9,7 @@ hira::hira(histo_read *Histo1)
     Histo_read = Histo1;
 
     TDC =  new TDC1190(1,64,128); // depth, referenceChannel, Nchannels
+    ADC = new V785Event("V785 Event");
 
     //make map of chips
     ifstream ifile("chipmap.dat"); // map detector # to MB # and chipboard #
@@ -145,7 +146,7 @@ bool hira::unpackCsi(ifstream& evtfile)
         unsigned int CsIMultiplicity = 0;
 
         ///point = ADC.read(point);  // suck out the info in the qdc
-        for (int i=0;i<(int)ADC.header.channelsHit.value;i++)
+        /**for (int i=0;i<(int)ADC.header.channelsHit.value;i++)
         {
             if (ADC.bodyData[i].underflow.value || ADC.bodyData[i].overflow.value)
             {
@@ -193,7 +194,7 @@ bool hira::unpackCsi(ifstream& evtfile)
             }
 
             Histo->Blocker_ESum->Fill(BlockerESum);
-        }
+        }**/
 
         Histo->CsIMult->Fill(CsIMultiplicity);
 

@@ -9,22 +9,22 @@
 class CompositeDataChunk : public DataChunk
 {
     public:
-        virtual ~CompositeDataChunk() {}
+        CompositeDataChunk(std::string n) : DataChunk(n) {}
+        ~CompositeDataChunk() {}
 
         void add(DataChunk* d)
         {
             subChunks.push_back(d);
         }
 
-        void remove(DataChunk* d)
+        void remove(DataChunk*)
         {
         }
 
-        void extractData(std::ifstream& evtfile);
         unsigned int getSize();
+        void extractData(std::ifstream& evtfile);
 
     protected:
-        CompositeDataChunk(std::string n) : DataChunk(n) {}
         std::vector<DataChunk*> subChunks;
 
     private:

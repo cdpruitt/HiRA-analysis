@@ -6,18 +6,26 @@
 
 using namespace std;
 
-bool HINP4Event::readEvent(ifstream evtfile)
+void HINP4Event::HINP4Event(ifstream evtfile)
 {
-    // read event data from input file into buffer
-    buffer.resize(size);
-    readWord(evtFile, buffer);
+    SimpleDataChunk* header = new SimpleDataChunk("HINP4 header");
+    header->add(Datum("XLM Marker", 0xFFFF, 0));
+    header->add(Datum("Words in Event", 0xFFFFFFFF, 0));
+    header->add(Datum("Channels Hit", 0xFFFF, 0));
+    header->add(Datum("XLM Timestamp", 0xFFFFFFFFFFFFFFFF,0));
 
-    // store event data from each word in the buffer into the appropriate
-    // quantity
-    for(int i=0; i<buffer.size(); i++)
+    add(header);
+
+    // For each channel hit on this MB
+    for(int j=0; j<getChannelsHit(); j++)
     {
-        eventQuantities[i].read(buffer[i]);
-    }
+        // add a body section for this hit channel
+        SimpleDataChunk* body = new SimpleDataChunk("HINP4 Body");
+        body->add(Datum("Channel ID", 0xFFFF, 0));
+        body->add(Datum("High-gain Energy", 0xFFFF, 0));
+        body->add(Datum("Low-gain Energy", 0xFFFF, 0));
+        body->add(Datum("Time", 0xFFFF, 0));
 
-    return true;
+        add(body);
+    }
 }
