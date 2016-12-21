@@ -26,13 +26,7 @@ void SimpleDataChunk::print(ofstream& outputFile)
     }
 }
 
-void SimpleDataChunk::branch(TTree*& tree)
-{
-    for(Datum d : data)
-    {
-        d.branch(tree);
-    }
-}
+void SimpleDataChunk::branch(TTree*&) {}
 
 void SimpleDataChunk::add(Datum d)
 {
@@ -49,3 +43,5 @@ unsigned int SimpleDataChunk::getDataValue(unsigned int i)
     cerr << "Error: tried to retrieve non-existent data value " << i << " from " << name << endl;
     return 0;
 }
+
+void SimpleDataChunk::reset() {}

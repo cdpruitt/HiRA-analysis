@@ -45,3 +45,16 @@ void CompositeDataChunk::branch(TTree*& tree)
         chunk->branch(tree);
     }
 }
+
+std::vector<DataChunk*> CompositeDataChunk::getSubChunks()
+{
+    return subChunks;
+}
+
+void CompositeDataChunk::reset()
+{
+    for(DataChunk* subChunk : subChunks)
+    {
+        subChunk->reset();
+    }
+}

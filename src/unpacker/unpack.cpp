@@ -87,15 +87,14 @@ int main(int argc, char* argv[])
     }
 
     /**************************************************************************
-    * Prepare for run sorting
+    * Initialize counters for event types
     **************************************************************************/
 
-    // initialize counters for event types
-    Counter physicsEventCounter("Physics events");
-    Counter physicsEventGoodCounter("Good physics events");
-    Counter scalerCounter("Scalers");
-    Counter pauseCounter("Pauses");
-    Counter resumeCounter("Resumes");
+    map<unsigned int, Counter*> Counters;
+    Counters[30] = new Counter("Physics events");
+    Counters[20] = new Counter("Scalers");
+    Counters[3] = new Counter("Pauses");
+    Counters[4] = new Counter("Resumes");
 
     /**************************************************************************
     * Sort each run
@@ -135,12 +134,22 @@ int main(int argc, char* argv[])
         // parse the run file into events
         while(!evtfile.eof() && !evtfile.bad())
         {
+            // read a an event off the run file
             ringItem->extractData(evtfile);
+
+            // fill the tree with that event's data
+            runTree->Fill();
 
             if(produceText)
             {
+                // make pretty-printed output
                 ringItem->print(textOutput);
             }
+
+            Counters[ringItem->getType()]->increment();
+
+            // reset event in preparation for next event
+            ringItem->reset();
         }
     }
 
@@ -148,17 +157,15 @@ int main(int argc, char* argv[])
      * Print event counters
      **************************************************************************/
 
-    physicsEventCounter.print();
-    physicsEventGoodCounter.print();
-
-    if (physicsEventCounter.getCount() > 0)
+    for(auto iterator : Counters)
     {
-        double percentGood =
-            ((double)physicsEventGoodCounter.getCount()/physicsEventCounter.getCount())*100;
-        cout << "Bad physics events = " << 100-percentGood << "\% of total." << endl;
+        iterator.second->print();
     }
 
-    scalerCounter.print();
-    pauseCounter.print();
-    resumeCounter.print();
+    if (Counters[30]->getCount() > 0)
+    {
+        //double percentGood =
+        //    ((double)physicsEventGoodCounter.getCount()/physicsEventCounter.getCount())*100;
+        //cout << "Bad physics events = " << 100-percentGood << "\% of total." << endl;
+    }
 }

@@ -1,6 +1,7 @@
 #include "../../include/unpacker/DataChunk.h"
 #include "../../include/unpacker/CompositeDataChunk.h"
 #include "../../include/unpacker/V1190Event.h"
+#include "../../include/unpacker/V1190EventBodySection.h"
 #include "../../include/unpacker/V1190Configuration.h"
 #include "../../include/unpacker/readData.h"
 
@@ -40,4 +41,62 @@ V1190Event::V1190Event(string n) : CompositeDataChunk(n)
     trailer->add(Datum("trigger status", 0x7, 24));
     trailer->add(Identifier("trailer identifier", 0x1F, 27, 0x10000));
     add(trailer);
+}
+
+void V1190Event::extractData(ifstream& evtfile)
+{
+    header->extractData(evtfile);
+
+    // populate body with appropriate number of channels hit
+    for(unsigned int i=0; i<getChannelsHit(); i++)
+    {
+        body->add(new V1190EventBodySection("V1190 Event Body Section",
+                    HAS_TDC_HEADER, HAS_TDC_MEASUREMENT,
+                    HAS_TDC_TRAILER, HAS_TDC_ERROR));
+    }
+
+    body->extractData(evtfile);
+
+    if(HAS_EXTENDED_TIME)
+    {
+        extendedTime->extractData(evtfile);
+    }
+
+    trailer->extractData(evtfile);
+
+    // store data in tree variables for extraction by tree
+    treeVariables.geographicalAddress = header->getDataValue(0);
+
+    vector<unsigned int> channelID;
+    vector<unsigned int> TDCValue;
+
+    for(DataChunk* channel : body->getSubChunks())
+    {
+        SimpleDataChunk* TDCMeasurement =
+            dynamic_cast<SimpleDataChunk*>(
+            dynamic_cast<CompositeDataChunk*>(channel)->getSubChunks()[1]);
+        channelID.push_back(TDCMeasurement->getDataValue(1));
+        TDCValue.push_back(TDCMeasurement->getDataValue(0));
+    }
+
+    treeVariables.channelID = channelID;
+    treeVariables.TDCValue = TDCValue;
+}
+
+unsigned int V1190Event::getChannelsHit()
+{
+    return header->getDataValue(1);
+}
+
+void V1190Event::branch(TTree*& tree)
+{
+    tree->Branch("V1190Event",&treeVariables,"geographicalAddress/I:channelID:TDCValue");
+}
+
+void V1190Event::reset()
+{
+    for(DataChunk* bodyPiece : body->getSubChunks())
+    {
+        delete bodyPiece;
+    }
 }

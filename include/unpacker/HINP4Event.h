@@ -29,11 +29,27 @@ class HINP4Event : public CompositeDataChunk
 {
     public:
         HINP4Event(std::string n);
+
+        void extractData(ifstream& evtfile);
+        void branch(TTree*&);
         unsigned int getChannelsHit();
+        void reset();
 
     private:
         HINP4EventHeader* header;
         HINP4EventBody* body;
+
+        struct TreeVariables
+        {
+            unsigned int XLMMarker;
+            std::vector<unsigned int> channelID;
+            std::vector<unsigned int> energyHG;
+            std::vector<unsigned int> energyLG;
+            std::vector<unsigned int> time;
+        };
+
+        TreeVariables treeVariables;
+
 };
 
 #endif

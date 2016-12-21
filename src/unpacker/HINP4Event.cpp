@@ -23,12 +23,53 @@ HINP4Event::HINP4Event(string n) : CompositeDataChunk(n)
     add(body);
 }
 
-//unsigned int HINP4Event::getChannelsHit()
-//{
-//    return header->channelsHit->data[0].value;
-//}
+void HINP4Event::extractData(ifstream& evtfile)
+{
+    header->extractData(evtfile);
 
-//void HINP4Event::branch(TTree*& tree)
-//{
-//    tree->Branch("HINP4EventBranch", treeVariables, "XLMMarker/i:channelsHit:channelID:energyHG:energyLG:time");
-//}
+    for(unsigned int i=0; i<getChannelsHit(); i++)
+    {
+        body->add(new HINP4EventBodySection("HINP4 Event Body Section"));
+    }
+
+    body->extractData(evtfile);
+
+    treeVariables.XLMMarker =
+         dynamic_cast<SimpleDataChunk*>(header->getSubChunks()[2])->getDataValue(0);
+
+    std::vector<unsigned int> channelID;
+    std::vector<unsigned int> energyHG;
+    std::vector<unsigned int> energyLG;
+    std::vector<unsigned int> time;
+
+    for(DataChunk* channel : body->getSubChunks())
+    {
+        channelID.push_back(dynamic_cast<SimpleDataChunk*>(channel)->getDataValue(0));
+        energyHG.push_back(dynamic_cast<SimpleDataChunk*>(channel)->getDataValue(1));
+        energyLG.push_back(dynamic_cast<SimpleDataChunk*>(channel)->getDataValue(2));
+        time.push_back(dynamic_cast<SimpleDataChunk*>(channel)->getDataValue(3));
+    }
+
+    treeVariables.channelID = channelID;
+    treeVariables.energyHG = energyHG;
+    treeVariables.energyLG = energyLG;
+    treeVariables.time = time;
+}
+
+unsigned int HINP4Event::getChannelsHit()
+{
+    return dynamic_cast<SimpleDataChunk*>(header->getSubChunks()[2])->getDataValue(2);
+}
+
+void HINP4Event::branch(TTree*& tree)
+{
+    tree->Branch("HINP4EventBranch", &treeVariables, "XLMMarker/i:channelID:energyHG:energyLG:time");
+}
+
+void HINP4Event::reset()
+{
+    for(DataChunk* bodyPiece : body->getSubChunks())
+    {
+        delete bodyPiece;
+    }
+}

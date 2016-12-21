@@ -47,6 +47,7 @@ class V785Event : public CompositeDataChunk
         unsigned int getChannelsHit();
         void extractData(ifstream& evtfile);
         void branch(TTree*& tree);
+        void reset();
 
     private:
         SimpleDataChunk* header;
@@ -55,10 +56,10 @@ class V785Event : public CompositeDataChunk
 
         struct TreeVariables
         {
-            unsigned int* crateNumber;
-            unsigned int* geographicAddress;
-            std::vector<unsigned int>* channelID;
-            std::vector<unsigned int>* ADCValue;
+            unsigned int crateNumber;
+            unsigned int geographicalAddress;
+            std::vector<unsigned int> channelID;
+            std::vector<unsigned int> ADCValue;
         };
 
         TreeVariables treeVariables;

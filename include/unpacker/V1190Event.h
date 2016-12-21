@@ -60,12 +60,25 @@ class V1190Event : public CompositeDataChunk
 {
     public:
         V1190Event(std::string n);
+        void extractData(ifstream& evtfile);
+        unsigned int getChannelsHit();
+        void branch(TTree*& tree);
+        void reset();
 
     private:
         SimpleDataChunk* header;
         V1190EventBody* body;
         SimpleDataChunk* extendedTime;
         SimpleDataChunk* trailer;
+
+        struct TreeVariables
+        {
+            unsigned int geographicalAddress;
+            std::vector<unsigned int> channelID;
+            std::vector<unsigned int> TDCValue;
+        };
+
+        TreeVariables treeVariables;
 };
 
 #endif

@@ -19,6 +19,7 @@ class DataChunk
 
         std::string getName();
         unsigned int getSize();
+        virtual void reset() = 0;
 
     protected:
         DataChunk(std::string n);

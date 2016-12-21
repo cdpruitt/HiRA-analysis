@@ -6,8 +6,7 @@ using namespace std;
 
 V1190EventBodySection::V1190EventBodySection(std::string n,
         bool hasTDCHeader, bool hasTDCMeasurement,
-        bool hasTDCTrailer, bool hasTDCError)
-    : CompositeDataChunk(n)
+        bool hasTDCTrailer, bool hasTDCError) : CompositeDataChunk(n)
 {
     if(hasTDCHeader)
     {

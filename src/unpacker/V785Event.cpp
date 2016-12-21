@@ -21,6 +21,29 @@ V785Event::V785Event(string n) : CompositeDataChunk(n)
 
     // Create body for event
     body = new V785EventBody("V785 Body");
+    add(body);
+
+    // Create trailer for event
+    trailer = new SimpleDataChunk("V785 Trailer", 4);
+    trailer->add(Datum("Event Counter", 0xFFFFFF, 0));
+    trailer->add(Identifier("Trailer Identifier", 0x7, 24, 0x100));
+
+    add(trailer);
+}
+
+unsigned int V785Event::getChannelsHit()
+{
+    return header->getDataValue(0);
+
+    cerr << "Error: couldn't find \"Channels Hit\" in event header." << endl;
+    return 0;
+}
+
+void V785Event::extractData(ifstream& evtfile)
+{
+    header->extractData(evtfile);
+
+    // populate body with appropriate number of channels hit
     for(unsigned int i=0; i<getChannelsHit(); i++)
     {
         SimpleDataChunk* channelData = new SimpleDataChunk("V785 Single Channel", 4);
@@ -34,35 +57,33 @@ V785Event::V785Event(string n) : CompositeDataChunk(n)
         body->add(channelData);
     }
 
-    // Create trailer for event
-    trailer = new SimpleDataChunk("V785 Trailer", 4);
-    trailer->add(Datum("Event Counter", 0xFFFFFF, 0));
-    trailer->add(Identifier("Trailer Identifier", 0x7, 24, 0x100));
+    body->extractData(evtfile);
 
-    add(trailer);
+    treeVariables.crateNumber = header->getDataValue(1);
+    treeVariables.geographicalAddress = header->getDataValue(2);
 
-    // Connect tree variables to data
-    treeVariables.crateNumber = &(header->data[1].value);
-    treeVariables.geographicAddress = &(header->data[2].value);
-}
+    vector<unsigned int> channelID;
+    vector<unsigned int> ADCValue;
 
-unsigned int V785Event::getChannelsHit()
-{
-    return header->getDataValue(0);
-
-    cerr << "Error: couldn't find \"Channels Hit\" in event header." << endl;
-    return 0;
-}
-
-void V785Event::extractData(ifstream& evtfile)
-{
-    for(DataChunk* d : subChunks)
+    for(DataChunk* channel : body->getSubChunks())
     {
-        d->extractData(evtfile);
+        channelID.push_back(dynamic_cast<SimpleDataChunk*>(channel)->getDataValue(3));
+        ADCValue.push_back(dynamic_cast<SimpleDataChunk*>(channel)->getDataValue(0));
     }
+
+    treeVariables.channelID = channelID;
+    treeVariables.ADCValue = ADCValue;
 }
 
 void V785Event::branch(TTree*& tree)
 {
-    tree->Branch("ADCEvent",&treeVariables,"*crateNumber/I:*geographicAddress:*channelID:*ADCValue");
+    tree->Branch("ADCEvent",&treeVariables,"crateNumber/I:geographicalAddress:channelID:ADCValue");
+}
+
+void V785Event::reset()
+{
+    for(DataChunk* bodyPiece : body->getSubChunks())
+    {
+        delete bodyPiece;
+    }
 }

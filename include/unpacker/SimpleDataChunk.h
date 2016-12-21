@@ -19,6 +19,7 @@ class SimpleDataChunk : public DataChunk
 
         void add(Datum d);
         unsigned int getDataValue(unsigned int i);
+        void reset();
 
         std::vector<Datum> data;
 

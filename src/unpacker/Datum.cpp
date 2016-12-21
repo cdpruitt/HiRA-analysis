@@ -8,7 +8,3 @@ void Datum::print(ofstream& outFile)
 {
     outFile << name << " = " << value << endl;
 }
-
-void Datum::branch(TTree*& tree)
-{
-}

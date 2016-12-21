@@ -8,6 +8,7 @@ class Counter
     public:
         Counter(std::string n);
         unsigned long getCount();
+        void increment();
         void print();
 
     private:

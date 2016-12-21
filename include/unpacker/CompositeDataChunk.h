@@ -17,8 +17,10 @@ class CompositeDataChunk : public DataChunk
         virtual void extractData(std::ifstream& evtfile);
         void print(std::ofstream& outputFile);
         void branch(TTree*& tree);
+        std::vector<DataChunk*> getSubChunks();
 
         unsigned int getSize();
+        virtual void reset();
 
     protected:
         std::vector<DataChunk*> subChunks;

@@ -7,8 +7,6 @@ class V1190EventBody : public CompositeDataChunk
 {
     public:
         V1190EventBody(std::string n);
-
-    private:
 };
 
 #endif

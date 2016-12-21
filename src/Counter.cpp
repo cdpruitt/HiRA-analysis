@@ -11,6 +11,11 @@ unsigned long Counter::getCount()
     return count;
 }
 
+void Counter::increment()
+{
+    count++;
+}
+
 void Counter::print()
 {
     cout << name << " = " << count << endl;
