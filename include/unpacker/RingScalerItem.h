@@ -1,11 +1,12 @@
 #ifndef RING_SCALER_ITEM_H
 #define RING_SCALER_ITEM_H
 
-#include "RingBodyItem.h"
+#include "RingItemBody.h"
+#include "RingScalerItemValues.h"
 #include "SimpleDataChunk.h"
 #include "CompositeDataChunk.h"
 
-class RingScalerItem : public RingBodyItem
+class RingScalerItem : public RingItemBody
 {
     public:
         RingScalerItem(std::string n);
@@ -21,7 +22,7 @@ class RingScalerItem : public RingBodyItem
         SimpleDataChunk* intervalDivisor;
         SimpleDataChunk* numberOfScalers;
         SimpleDataChunk* isIncremental;
-        CompositeDataChunk* scalerValues; 
+        RingScalerItemValues* scalerValues; 
 };
 
 #endif

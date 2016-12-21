@@ -1,10 +1,10 @@
 #ifndef RING_STATE_CHANGE_ITEM_H
 #define RING_STATE_CHANGE_ITEM_H
 
-#include "RingBodyItem.h"
+#include "RingItemBody.h"
 #include "SimpleDataChunk.h"
 
-class RingStateChangeItem : public RingBodyItem
+class RingStateChangeItem : public RingItemBody
 {
     public:
         RingStateChangeItem(std::string n);

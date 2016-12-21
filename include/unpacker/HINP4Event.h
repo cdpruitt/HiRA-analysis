@@ -5,7 +5,7 @@
  *     XLM Marker | 16-bit word
  *     Number of chip words | 32-bit word
  *     Number of channels | 16-bit word
- *     XLM Timestemp | 64-bit word
+ *     XLM Timestamp | 64-bit word
  *
  * Event body
  * For each MB triggered:
@@ -22,6 +22,8 @@
 
 #include "CompositeDataChunk.h"
 #include "SimpleDataChunk.h"
+#include "HINP4EventHeader.h"
+#include "HINP4EventBody.h"
 
 class HINP4Event : public CompositeDataChunk
 {
@@ -30,37 +32,8 @@ class HINP4Event : public CompositeDataChunk
         unsigned int getChannelsHit();
 
     private:
-        class Header : public CompositeDataChunk
-        {
-            public:
-                Header(std::string n) : CompositeDataChunk(n)
-                {
-                    XLMMarker = new SimpleDataChunk("XLM Marker Word", 2);
-                    XLMMarker->add(Datum("XLM Marker", 0xFFFF, 0));
-                    add(XLMMarker);
-
-                    wordsInEvent = new SimpleDataChunk("Words In Event Word", 4);
-                    wordsInEvent->add(Datum("Words in Event", 0xFFFFFFFF, 0));
-                    add(wordsInEvent);
-
-                    channelsHit = new SimpleDataChunk("Channels Hit Word", 2);
-                    channelsHit->add(Datum("Channels Hit", 0xFFFF, 0));
-                    add(channelsHit);
-
-                    XLMTimestamp = new SimpleDataChunk("XLM Timestamp Word", 2);
-                    XLMTimestamp->add(Datum("XLM Timestamp", 0xFFFF, 0));
-                    add(XLMTimestamp);
-                }
-
-                SimpleDataChunk* XLMMarker;
-                SimpleDataChunk* wordsInEvent;
-                SimpleDataChunk* channelsHit;
-                SimpleDataChunk* XLMTimestamp;
-        };
-
-        Header* header;
-        CompositeDataChunk* body;
-        unsigned int channelsHit;
+        HINP4EventHeader* header;
+        HINP4EventBody* body;
 };
 
 #endif

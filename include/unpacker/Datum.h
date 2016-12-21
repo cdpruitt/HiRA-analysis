@@ -1,7 +1,9 @@
 #ifndef DATUM_H
 #define DATUM_H
 
-#include <string>
+#include "TTree.h"
+
+#include <fstream>
 #include <vector>
 
 class Datum
@@ -17,6 +19,9 @@ class Datum
         {
             value = (word >> bitShift) & bitMask;
         }
+
+        void print(std::ofstream& outFile);
+        void branch(TTree*& tree);
 
         const std::string name;
         const unsigned int bitShift;

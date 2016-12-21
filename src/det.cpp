@@ -25,14 +25,14 @@ det::~det()
 /* unpacks a physics event from the data stream
  * param point0 - pointer to location in data stream
  */
-bool det::unpack(ifstream& evtfile)
+/*bool det::unpack(ifstream& evtfile)
 {
     Hira->reset();
     readWord(evtfile,dummy);
     readWord(evtfile,dummy);
 
     return Hira->unpack(evtfile);
-}
+}*/
 
 //*********************************
 

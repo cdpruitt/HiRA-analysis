@@ -4,7 +4,7 @@
 
 using namespace std;
 
-RingEventCountItem::RingEventCountItem(string n) : RingBodyItem(n)
+RingEventCountItem::RingEventCountItem(string n) : RingItemBody(n)
 {
     // Create word structure for an Event Count item
     timeOffset = new SimpleDataChunk("Time Offset Word", 4);

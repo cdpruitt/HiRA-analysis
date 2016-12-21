@@ -2,7 +2,7 @@
 
 using namespace std;
 
-VMUSBEvent::VMUSBEvent(string n) : RingBodyItem(n)
+VMUSBEvent::VMUSBEvent(string n) : RingItemBody(n)
 {
     eventHeader = new SimpleDataChunk("VMUSB Event Header", 4);
     eventHeader->add(Datum("Number of Words in VMUSBEvent body", 0xFFF, 0));
@@ -14,6 +14,6 @@ VMUSBEvent::VMUSBEvent(string n) : RingBodyItem(n)
     CsIADCEvent = new V785Event("V785 Event");
     add(CsIADCEvent);
 
-    CsITDCEvent = new V1190Event("V1190 Event", NUMBER_OF_TDCS, HAS_EXTENDED_TIME);
+    CsITDCEvent = new V1190Event("V1190 Event");
     add(CsITDCEvent);
 }

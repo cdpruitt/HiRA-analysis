@@ -20,7 +20,7 @@ V785Event::V785Event(string n) : CompositeDataChunk(n)
     add(header);
 
     // Create body for event
-    body = new CompositeDataChunk("V785 Body");
+    body = new V785EventBody("V785 Body");
     for(unsigned int i=0; i<getChannelsHit(); i++)
     {
         SimpleDataChunk* channelData = new SimpleDataChunk("V785 Single Channel", 4);
@@ -40,18 +40,29 @@ V785Event::V785Event(string n) : CompositeDataChunk(n)
     trailer->add(Identifier("Trailer Identifier", 0x7, 24, 0x100));
 
     add(trailer);
+
+    // Connect tree variables to data
+    treeVariables.crateNumber = &(header->data[1].value);
+    treeVariables.geographicAddress = &(header->data[2].value);
 }
 
 unsigned int V785Event::getChannelsHit()
 {
-    for(Datum d : header->data)
-    {
-        if(d.name == "Channels Hit")
-        {
-            return d.value;
-        }
-    }
+    return header->getDataValue(0);
 
     cerr << "Error: couldn't find \"Channels Hit\" in event header." << endl;
     return 0;
+}
+
+void V785Event::extractData(ifstream& evtfile)
+{
+    for(DataChunk* d : subChunks)
+    {
+        d->extractData(evtfile);
+    }
+}
+
+void V785Event::branch(TTree*& tree)
+{
+    tree->Branch("ADCEvent",&treeVariables,"*crateNumber/I:*geographicAddress:*channelID:*ADCValue");
 }

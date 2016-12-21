@@ -2,16 +2,15 @@
 
 using namespace std;
 
-unsigned int DataChunk::getSize()
-{
-    return size;
-}
+DataChunk::DataChunk(string n) : name(n) {}
+DataChunk::DataChunk(string n, unsigned int s) : name(n), size(s) {}
 
 string DataChunk::getName()
 {
     return name;
 }
 
-DataChunk::DataChunk(std::string n) : name(n)
+unsigned int DataChunk::getSize()
 {
+    return size;
 }

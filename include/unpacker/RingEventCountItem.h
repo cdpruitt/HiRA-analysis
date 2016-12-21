@@ -1,10 +1,10 @@
 #ifndef RING_EVENT_COUNT_ITEMS
 #define RING_EVENT_COUNT_ITEMS
 
-#include "RingBodyItem.h"
+#include "RingItemBody.h"
 #include "SimpleDataChunk.h"
 
-class RingEventCountItem : public RingBodyItem
+class RingEventCountItem : public RingItemBody
 {
     public:
         RingEventCountItem(std::string n);

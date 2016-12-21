@@ -3,10 +3,10 @@
 
 #include "CompositeDataChunk.h"
 
-class RingBodyItem : public CompositeDataChunk
+class RingItemBody : public CompositeDataChunk
 {
     public:
-        RingBodyItem(std::string n);
+        RingItemBody(std::string n);
 
     private:
 };

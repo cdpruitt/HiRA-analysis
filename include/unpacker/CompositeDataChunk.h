@@ -6,23 +6,19 @@
 #include <fstream>
 #include <vector>
 
+#include "TTree.h"
+
 class CompositeDataChunk : public DataChunk
 {
     public:
-        CompositeDataChunk(std::string n) : DataChunk(n) {}
-        ~CompositeDataChunk() {}
+        CompositeDataChunk(std::string n);
 
-        void add(DataChunk* d)
-        {
-            subChunks.push_back(d);
-        }
-
-        void remove(DataChunk*)
-        {
-        }
+        void add(DataChunk* d);
+        virtual void extractData(std::ifstream& evtfile);
+        void print(std::ofstream& outputFile);
+        void branch(TTree*& tree);
 
         unsigned int getSize();
-        void extractData(std::ifstream& evtfile);
 
     protected:
         std::vector<DataChunk*> subChunks;

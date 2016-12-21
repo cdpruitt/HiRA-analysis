@@ -25,7 +25,9 @@
 
 #include "CompositeDataChunk.h"
 #include "SimpleDataChunk.h"
-#include "RingBodyItem.h"
+#include "RingItemHeader.h"
+#include "RingItemBodyHeader.h"
+#include "RingItemBody.h"
 
 const bool BODY_HEADER_TIMESTAMP = false;
 const bool BODY_HEADER_SOURCE_ID = false;
@@ -38,10 +40,9 @@ class RingItem : public CompositeDataChunk
         unsigned int getType();
         void extractData(std::ifstream& evtfile);
 
-    private:
-        CompositeDataChunk* eventHeader;
-        CompositeDataChunk* bodyHeader;
-        RingBodyItem* eventData;
+        RingItemHeader* eventHeader;
+        RingItemBodyHeader* bodyHeader;
+        RingItemBody* eventData;
         unsigned int type;
 };
 

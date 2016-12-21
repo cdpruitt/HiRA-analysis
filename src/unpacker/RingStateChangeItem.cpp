@@ -1,4 +1,4 @@
-#include "../../include/unpacker/RingBodyItem.h"
+#include "../../include/unpacker/RingItemBody.h"
 #include "../../include/unpacker/RingStateChangeItem.h"
 
 #include "../../include/unpacker/CompositeDataChunk.h"
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-RingStateChangeItem::RingStateChangeItem(string n) : RingBodyItem(n)
+RingStateChangeItem::RingStateChangeItem(string n) : RingItemBody(n)
 {
     // Create word structure for a State Change Item
     runNumber = new SimpleDataChunk("Run Number Word", 4);

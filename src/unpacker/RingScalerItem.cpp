@@ -2,7 +2,7 @@
 
 using namespace std;
 
-RingScalerItem::RingScalerItem(string n) : RingBodyItem(n)
+RingScalerItem::RingScalerItem(string n) : RingItemBody(n)
 {
     // Create word structure for a Scaler Item
     intervalStartOffset = new SimpleDataChunk("Interval Start Offset Word", 4);
@@ -29,21 +29,30 @@ RingScalerItem::RingScalerItem(string n) : RingBodyItem(n)
     isIncremental->add(Datum("Is Incremental?", 0xFFFF, 0));
     add(isIncremental);
 
-    scalerValues = new CompositeDataChunk("Scaler Values");
+    scalerValues = new RingScalerItemValues("Scaler Values");
     add(scalerValues);
 }
 
 void RingScalerItem::extractData(ifstream& evtfile)
 {
-    for(int i=0; i<getScalerNumber(); i++)
+    intervalStartOffset->extractData(evtfile);
+    intervalEndOffset->extractData(evtfile);
+    timestamp->extractData(evtfile);
+    intervalDivisor->extractData(evtfile);
+    numberOfScalers->extractData(evtfile);
+    isIncremental->extractData(evtfile);
+
+    for(unsigned int i=0; i<getScalerNumber(); i++)
     {
         string s = to_string(i);
         SimpleDataChunk* scalerValue = new SimpleDataChunk("Scaler " + s, 4);
         scalerValues->add(scalerValue);
     }
+
+    scalerValues->extractData(evtfile);
 }
 
 unsigned int RingScalerItem::getScalerNumber()
 {
-    return numberOfScalers->data[0].value;
+    return numberOfScalers->getDataValue(0);
 }

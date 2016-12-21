@@ -1,4 +1,7 @@
-SOURCES = src/correl.cpp src/unpacker/DataChunk.cpp src/unpacker/CompositeDataChunk.cpp src/det.cpp src/doppler.cpp src/einstein.cpp src/elist.cpp src/hira.cpp src/histo_read.cpp src/histo_sort.cpp src/loss.cpp src/newton.cpp src/pid.cpp src/pixels.cpp src/solution.cpp src/sort.cpp src/telescope.cpp src/unpacker/RingItem.cpp src/unpacker/RingScalerItem.cpp src/unpacker/RingEventCountItem.cpp src/unpacker/RingBodyItem.cpp src/unpacker/RingStateChangeItem.cpp src/unpacker/VMUSBEvent.cpp src/unpacker/V785Event.cpp src/unpacker/V1190Event.cpp src/unpacker/HINP4Event.cpp src/singletons/FileOpener.cpp src/ZApar.cpp 
+UNCLASSED_SOURCES = $(wildcard src/*.cpp)
+SINGLETON_SOURCES = $(wildcard src/singletons/*.cpp)
+UNPACKER_SOURCES = $(wildcard src/unpacker/*.cpp)
+SOURCES = $(UNCLASSED_SOURCES) $(SINGLETON_SOURCES) $(UNPACKER_SOURCES)
 OBJECTS = $(SOURCES:.c=.o)
 CFLAGS= -g -std=c++11 -O0 -W -I$(shell root-config --incdir) 
 COMPILER= clang++

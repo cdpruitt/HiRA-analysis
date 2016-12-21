@@ -2,6 +2,7 @@
 #define DATA_CHUNK_H
 
 #include <fstream>
+#include "TTree.h"
 
 /******************************************************************************/
 /* DataChunk structure */
@@ -10,15 +11,18 @@ class DataChunk
 {
     public:
         virtual ~DataChunk() {}
-        virtual void extractData(std::ifstream& evtfile) = 0;
 
         virtual void add(DataChunk*) = 0;
+        virtual void extractData(std::ifstream& evtfile) = 0;
+        virtual void print(std::ofstream& evtfile) = 0;
+        virtual void branch(TTree*& tree) = 0;
 
-        unsigned int getSize();
         std::string getName();
+        unsigned int getSize();
 
     protected:
         DataChunk(std::string n);
+        DataChunk(std::string n, unsigned int s);
         unsigned int size; // in bytes
 
     private:

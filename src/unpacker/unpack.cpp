@@ -49,47 +49,41 @@
 #include <sstream>
 #include <ctime>
 
-#include "../include/det.h"
-#include "../include/histo_sort.h"
-#include "../include/histo_read.h"
-#include "../include/forest.h"
-#include "../include/singletons/FileOpener.h"
+#include "../../include/singletons/FileOpener.h"
+#include "../../include/unpacker/RingItem.h"
+#include "../../include/Counter.h"
 
-#include "../include/unpacker/RingItem.h"
+#include "TTree.h"
 
 using namespace std;
 
 const string EVENT_FILE_STEM = "/events/e14002/complete/run-";
+const string TEXT_OUTPUT_NAME = "evtfilePrinted.txt";
 
 int main(int argc, char* argv[])
 {
+    // check for flag indicating we should produce text output of run data
+    bool produceText;
+    if(argc>1)
+    {
+        produceText = argv[1];
+    }
+
+    FileOpener* fileOpener = FileOpener::Instance();
+
     /**************************************************************************
     * Determine which runs to sort
     **************************************************************************/
 
-    vector<int> runNumbers; // list of the run numbers we'd like to read
+    vector<unsigned int> runNumbers; // for holding the list of the run numbers to read
 
-    FileOpener* fileOpener = FileOpener::Instance();
+    ifstream runFile;
+    fileOpener->openFile("numbers.beam", runFile);
 
-    if(argc==1) // no run numbers provided as arguments to './sort';
-                // read run numbers from runfile
+    string line;
+    while(getline(runFile,line))
     {
-        ifstream runFile;
-        fileOpener->openFile("numbers.beam", runFile);
-
-        string line;
-        while(getline(runFile,line))
-        {
-            runNumbers.push_back(stoi(line));
-        }
-    }
-
-    else // run numbers provided as arguments to './sort'
-    {
-        for(int i=1; i<argc; i++)
-        {
-            runNumbers.push_back(atoi(argv[i]));
-        }
+        runNumbers.push_back(stoi(line));
     }
 
     /**************************************************************************
@@ -97,25 +91,18 @@ int main(int argc, char* argv[])
     **************************************************************************/
 
     // initialize counters for event types
-    long physicsEvent = 0;
-    long physicsEventGood = 0;
-    long physicsEventCounter = 0;
-    long scalerBufferCounter = 0;
-    long Npauses = 0;
-    long Nresumes = 0;
-    short runno = 0;
+    Counter physicsEventCounter("Physics events");
+    Counter physicsEventGoodCounter("Good physics events");
+    Counter scalerCounter("Scalers");
+    Counter pauseCounter("Pauses");
+    Counter resumeCounter("Resumes");
 
-    // initialize the classes for processing sorted events
-    ///histo_sort * Histo_sort = new histo_sort();
-    //histo_read * Histo_read = new histo_read();
-    ///forest * Forest = new forest();
+    /**************************************************************************
+    * Sort each run
+    **************************************************************************/
 
-    ///det Det(Histo_sort);
-
-    for(int runNumber : runNumbers)
+    for(unsigned int runNumber : runNumbers)
     {
-        ///Forest->newTree(runNumber);
-
         // form the run file name
         stringstream runNumberFormatted;
         runNumberFormatted.str("");
@@ -126,52 +113,52 @@ int main(int argc, char* argv[])
         fileNameStream << EVENT_FILE_STEM << runNumberFormatted;
         string eventFileName = fileNameStream.str();
 
+        // create a generic ring item for reading NSCLDAQ data
+        RingItem* ringItem = new RingItem("Ring Item");
+
+        // create a ROOT tree to hold this run's data
+        TTree* runTree = new TTree();
+        ringItem->branch(runTree); // link tree to ringItem variables
+
         // open the event file
         ifstream evtfile;
         fileOpener->openFile(eventFileName, evtfile, "b");
 
         cout << endl << "Processing " << eventFileName << "..." << endl;
 
-        /***********************************************************************
-         * Parse an event file word-by-word
-         **********************************************************************/
-        bool endOfRun = false; // keep track of end-of-run indicator events
-
-        while(!evtfile.eof() && !evtfile.bad() && !endOfRun)
+        ofstream textOutput;
+        if(produceText)
         {
-            /*******************************************************************
-             * Read event header
-             ******************************************************************/
+            textOutput.open(TEXT_OUTPUT_NAME);
+        }
 
-            RingItem* ringItem = new RingItem("Ring Item");
+        // parse the run file into events
+        while(!evtfile.eof() && !evtfile.bad())
+        {
             ringItem->extractData(evtfile);
 
-            /**int dataBytes = totalBytesInEvent - HEADER_BYTES;
-            int dataWords = dataBytes/2;
-
-            unsigned short dataBuffer[dataWords];
-            evtfile.read((char*)dataBuffer,dataBytes);
-
-            switch(evtType)
+            if(produceText)
             {
-            }**/
+                ringItem->print(textOutput);
+            }
+        }
+    }
 
-        } //end loop over evtfile
+    /**************************************************************************
+     * Print event counters
+     **************************************************************************/
 
-        ///Forest->writeTree();
+    physicsEventCounter.print();
+    physicsEventGoodCounter.print();
 
-    } //end loop of run file numbers
-
-    if (physicsEvent > 0)
+    if (physicsEventCounter.getCount() > 0)
     {
-        double percentGood = ((double)physicsEventGood/physicsEvent)*100;
+        double percentGood =
+            ((double)physicsEventGoodCounter.getCount()/physicsEventCounter.getCount())*100;
         cout << "Bad physics events = " << 100-percentGood << "\% of total." << endl;
     }
 
-    cout << "physics Event Counters = " << physicsEventCounter << endl;
-    cout << "scaler buffers = " << scalerBufferCounter << endl;
-    cout << "Numbers of pauses = " << Npauses << endl;
-    cout << "Number of resumes = " << Nresumes << endl;
-
-    ///Histo_sort->write(); // this forces the histrograms to be read out to file
+    scalerCounter.print();
+    pauseCounter.print();
+    resumeCounter.print();
 }

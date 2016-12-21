@@ -14,51 +14,15 @@ using namespace std;
 RingItem::RingItem(string n) : CompositeDataChunk(n)
 {
     // Create event header for event
-    eventHeader = new CompositeDataChunk("Ring Item Event Header");
-
-    SimpleDataChunk* inclusiveSize = new SimpleDataChunk("Inclusive Size Word", 4);
-    inclusiveSize->add(Datum("Inclusive Size", 0xFFFFFFFF, 0));
-    eventHeader->add(inclusiveSize);
-
-    SimpleDataChunk* eventType = new SimpleDataChunk("Event Type Word", 4);
-    eventType->add(Datum("Event Type", 0xFFFFFFFF, 0));
-    eventHeader->add(eventType);
-
+    eventHeader = new RingItemHeader("Ring Item Event Header");
     add(eventHeader);
 
     // Create body header for event
-    bodyHeader = new CompositeDataChunk("Ring Item Body Header");
-
-    SimpleDataChunk* bodyHeaderSize = new SimpleDataChunk("Body Header Inclusive Size Word", 4);
-    bodyHeaderSize->add(Datum("Body Header Inclusive Size", 0xFFFFFFFF, 0));
-    bodyHeader->add(bodyHeaderSize);
-
-    // Optional body header components
-    if(BODY_HEADER_TIMESTAMP)
-    {
-        SimpleDataChunk* bodyHeaderTimestamp = new SimpleDataChunk("Body Header Timestamp Word", 8);
-        bodyHeaderTimestamp->add(Datum("Body Header Timestamp", 0xFFFFFFFFFFFFFFFF, 0));
-        bodyHeader->add(bodyHeaderTimestamp);
-    }
-
-    if(BODY_HEADER_SOURCE_ID)
-    {
-        SimpleDataChunk* bodyHeaderSourceID = new SimpleDataChunk("Body Header Source ID Word", 4);
-        bodyHeaderSourceID->add(Datum("Body Header Source ID", 0xFFFFFFFF, 0));
-        bodyHeader->add(bodyHeaderSourceID);
-    }
-
-    if(BODY_HEADER_BARRIER_TYPE)
-    {
-        SimpleDataChunk* bodyHeaderBarrierType = new SimpleDataChunk("Body Header Barrier Type Word", 4);
-        bodyHeaderBarrierType->add(Datum("Body Header Barrier Type", 0xFFFFFFFF, 0));
-        bodyHeader->add(bodyHeaderBarrierType);
-    }
-
+    bodyHeader = new RingItemBodyHeader("Ring Item Body Header");
     add(bodyHeader);
 
     // create event data for event
-    eventData = new RingBodyItem("Ring Item Body");
+    eventData = new RingItemBody("Ring Item Body");
     add(eventData);
 }
 

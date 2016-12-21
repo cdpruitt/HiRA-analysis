@@ -12,19 +12,18 @@
 #ifndef VMUSB_EVENT_H
 #define VMUSB_EVENT_H
 
-#include "RingBodyItem.h"
+#include "RingItemBody.h"
 #include "SimpleDataChunk.h"
 #include "HINP4Event.h"
 #include "V785Event.h"
 #include "V1190Event.h"
 
-class VMUSBEvent : public RingBodyItem
+class VMUSBEvent : public RingItemBody
 {
     public:
         VMUSBEvent(std::string n);
         ~VMUSBEvent() {}
 
-    private:
         SimpleDataChunk* eventHeader;
         HINP4Event* siliconEvent;
         V785Event* CsIADCEvent;
