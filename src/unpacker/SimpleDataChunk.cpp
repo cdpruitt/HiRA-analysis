@@ -11,7 +11,7 @@ void SimpleDataChunk::extractData(std::ifstream& evtfile)
     unsigned int word;
     evtfile.read((char*)&word,size);
 
-    for(Datum d : data)
+    for(Datum& d : data)
     {
         d.readValue(word);
     }
@@ -19,7 +19,6 @@ void SimpleDataChunk::extractData(std::ifstream& evtfile)
 
 void SimpleDataChunk::print(ofstream& outputFile)
 {
-    outputFile << getName() << endl << endl;
     for(Datum d : data)
     {
         d.print(outputFile);
@@ -40,7 +39,7 @@ unsigned int SimpleDataChunk::getDataValue(unsigned int i)
         return data[i].value;
     }
 
-    cerr << "Error: tried to retrieve non-existent data value " << i << " from " << name << endl;
+    cerr << "Error: tried to retrieve non-existent data value " << i << " from " << data[i].name << endl;
     return 0;
 }
 

@@ -8,7 +8,7 @@ COMPILER= clang++
 LINKOPTION = $(shell root-config --libs)
 HEADERS = $(shell echo include/*.h)
 
-all: sort readtree
+all: sort 
 
 sort: $(OBJECTS)
 	$(COMPILER) $(CFLAGS) -o sort $(OBJECTS) $(LINKOPTION)

@@ -57,16 +57,23 @@
 
 using namespace std;
 
-const string EVENT_FILE_STEM = "/events/e14002/complete/run-";
+const string EVENT_FILE_STEM = "";
 const string TEXT_OUTPUT_NAME = "evtfilePrinted.txt";
 
 int main(int argc, char* argv[])
 {
-    // check for flag indicating we should produce text output of run data
-    bool produceText;
+    string firstArg = "";
+
     if(argc>1)
     {
-        produceText = argv[1];
+        firstArg = argv[1];
+    }
+
+    // check for flag indicating we should produce text output of run data
+    bool produceText;
+    if(firstArg == "-t")
+    {
+        produceText = true;
     }
 
     FileOpener* fileOpener = FileOpener::Instance();
@@ -109,7 +116,7 @@ int main(int argc, char* argv[])
 
         stringstream fileNameStream;
         fileNameStream.str("");
-        fileNameStream << EVENT_FILE_STEM << runNumberFormatted;
+        fileNameStream << EVENT_FILE_STEM << "run-" << runNumberFormatted.str() << "-00.evt";
         string eventFileName = fileNameStream.str();
 
         // create a generic ring item for reading NSCLDAQ data
@@ -146,7 +153,10 @@ int main(int argc, char* argv[])
                 ringItem->print(textOutput);
             }
 
-            Counters[ringItem->getType()]->increment();
+            if(Counters[ringItem->getType()])
+            {
+                Counters[ringItem->getType()]->increment();
+            }
 
             // reset event in preparation for next event
             ringItem->reset();

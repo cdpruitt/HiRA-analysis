@@ -15,11 +15,7 @@ class Datum
             bitShift(bitS)
         {}
 
-        void readValue(unsigned int word)
-        {
-            value = (word >> bitShift) & bitMask;
-        }
-
+        void readValue(unsigned int word);
         void print(std::ofstream& outFile);
 
         const std::string name;

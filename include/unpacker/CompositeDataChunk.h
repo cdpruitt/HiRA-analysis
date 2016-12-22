@@ -15,7 +15,7 @@ class CompositeDataChunk : public DataChunk
 
         void add(DataChunk* d);
         virtual void extractData(std::ifstream& evtfile);
-        void print(std::ofstream& outputFile);
+        virtual void print(std::ofstream& outputFile);
         void branch(TTree*& tree);
         std::vector<DataChunk*> getSubChunks();
 

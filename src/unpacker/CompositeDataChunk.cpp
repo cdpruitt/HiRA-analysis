@@ -31,7 +31,7 @@ unsigned int CompositeDataChunk::getSize()
 
 void CompositeDataChunk::print(ofstream& outputFile)
 {
-    outputFile << getName() << endl << endl;
+    outputFile << getName() << endl;
     for(DataChunk* chunk : subChunks)
     {
         chunk->print(outputFile);

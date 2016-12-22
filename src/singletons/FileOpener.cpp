@@ -23,6 +23,7 @@ void FileOpener::openFile(string fileName, ifstream& file)
     if(!file.is_open())
     {
         cerr << "Error: couldn't open " << fileName << "." << endl;
+        exit(1);
     }
 
     else
@@ -42,13 +43,13 @@ void FileOpener::openFile(string fileName, ifstream& file, string mode)
     {
         cerr << "Error: couldn't understand file opening mode " << mode
              << " when trying to open " << fileName << endl;
-        return;
+        exit(1);
     }
 
     if(!file.is_open())
     {
         cerr << "Error: couldn't open " << fileName << "." << endl;
-        return;
+        exit(1);
     }
 
     cout << "Successfully opened " << fileName << "." << endl;

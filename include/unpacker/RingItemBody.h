@@ -7,6 +7,7 @@ class RingItemBody : public CompositeDataChunk
 {
     public:
         RingItemBody(std::string n);
+        void print(ofstream& outputFile);
 
     private:
 };

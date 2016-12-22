@@ -39,7 +39,9 @@ class RingItem : public CompositeDataChunk
         RingItem(std::string n);
         unsigned int getType();
         void extractData(std::ifstream& evtfile);
+        void print(ofstream& outputFile);
 
+    private:
         RingItemHeader* eventHeader;
         RingItemBodyHeader* bodyHeader;
         RingItemBody* eventData;

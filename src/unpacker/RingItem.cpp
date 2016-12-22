@@ -5,8 +5,10 @@
 #include "../../include/unpacker/RingScalerItem.h"
 #include "../../include/unpacker/VMUSBEvent.h"
 #include "../../include/unpacker/RingEventCountItem.h"
+#include "../../include/unpacker/RingFormatItem.h"
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 using namespace std;
@@ -20,15 +22,18 @@ RingItem::RingItem(string n) : CompositeDataChunk(n)
     // Create body header for event
     bodyHeader = new RingItemBodyHeader("Ring Item Body Header");
     add(bodyHeader);
-
-    // create event data for event
-    eventData = new RingItemBody("Ring Item Body");
-    add(eventData);
 }
 
 void RingItem::extractData(ifstream& evtfile)
 {
     eventHeader->extractData(evtfile);
+    bodyHeader->extractData(evtfile);
+
+    vector<DataChunk*> words = eventHeader->getSubChunks();
+
+    DataChunk* eventTypeWord = dynamic_cast<CompositeDataChunk*>(eventHeader)->getSubChunks()[1];
+    SimpleDataChunk* word = dynamic_cast<SimpleDataChunk*>(eventTypeWord);
+    type = word->getDataValue(0);
 
     string name; // for naming the event body type
 
@@ -44,6 +49,11 @@ void RingItem::extractData(ifstream& evtfile)
             name = "Resume Run Item";
 
             eventData = new RingStateChangeItem(name);
+            break;
+
+        case 12:
+            name = "Ring Format Item";
+            eventData = new RingFormatItem(name);
             break;
 
         case 20:
@@ -63,8 +73,11 @@ void RingItem::extractData(ifstream& evtfile)
 
         default:
             cout << "Error: encountered unknown evtType " << type << ". Exiting..." << endl;
-            return;
+            exit(1);
     }
+
+    // create event data for event
+    add(eventData);
 
     eventData->extractData(evtfile);
 }
@@ -72,4 +85,15 @@ void RingItem::extractData(ifstream& evtfile)
 unsigned int RingItem::getType()
 {
     return type;
+}
+
+void RingItem::print(ofstream& outputFile)
+{
+    outputFile << setfill('-') << setw(80) << "-" << endl;
+    outputFile << getName() << endl;
+
+    for(DataChunk* chunk : subChunks)
+    {
+        chunk->print(outputFile);
+    }
 }

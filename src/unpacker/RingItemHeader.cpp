@@ -12,3 +12,9 @@ RingItemHeader::RingItemHeader(string n) : CompositeDataChunk(n)
     eventType->add(Datum("Event Type", 0xFFFFFFFF, 0));
     add(eventType);
 }
+
+/*void RingItemHeader::extractData(ifstream& evtfile)
+{
+    inclusiveSize.extractData(evtfile);
+    eventType.extractData(evtfile);
+}*/
